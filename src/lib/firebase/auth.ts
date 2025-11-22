@@ -4,6 +4,9 @@ import {
     onAuthStateChanged,
     User,
     createUserWithEmailAndPassword,
+    updatePassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
 } from 'firebase/auth';
 import { auth } from './index';
 
@@ -45,4 +48,34 @@ export const getCurrentUser = (): User | null => {
 // Listen to auth state changes
 export const onAuthChange = (callback: (user: User | null) => void) => {
     return onAuthStateChanged(auth, callback);
+};
+
+// Update user password
+export const updateUserPassword = async (currentPassword: string, newPassword: string) => {
+    try {
+        const user = auth.currentUser;
+        
+        if (!user || !user.email) {
+            return { error: 'No user is currently signed in' };
+        }
+
+        // Reauthenticate user before password change
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        // Update password
+        await updatePassword(user, newPassword);
+        
+        return { error: null };
+    } catch (error: any) {
+        // Handle specific error codes
+        if (error.code === 'auth/wrong-password') {
+            return { error: 'Current password is incorrect' };
+        } else if (error.code === 'auth/weak-password') {
+            return { error: 'New password is too weak' };
+        } else if (error.code === 'auth/requires-recent-login') {
+            return { error: 'Please log out and log in again before changing your password' };
+        }
+        return { error: error.message || 'Failed to update password' };
+    }
 };

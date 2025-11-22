@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,18 +12,38 @@ import {
     LayoutGrid,
     List,
     Calendar as CalendarIcon,
+    ChevronDown,
+    Check,
+    MessageSquare,
+    X,
 } from "lucide-react";
 import Link from "next/link";
 import EnhancedTicketModal from "@/components/modals/EnhancedTicketModal";
 import { ticketService } from "@/lib/firebase/services";
+import { timelineService } from "@/lib/firebase/timeline";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+
+type FilterOption = "my-open" | "all" | "unassigned" | "open" | "in-progress" | "resolved";
 
 export default function TicketsPage() {
+    const { user } = useAuth();
     const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar">("list");
     const [searchQuery, setSearchQuery] = useState("");
     const [showNewTicketModal, setShowNewTicketModal] = useState(false);
     const [tickets, setTickets] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [filterOption, setFilterOption] = useState<FilterOption>("my-open");
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+    const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+    const [selectedTicketForNote, setSelectedTicketForNote] = useState<any>(null);
+    const [noteText, setNoteText] = useState("");
+    const [isPublicNote, setIsPublicNote] = useState(true);
+    const [addingNote, setAddingNote] = useState(false);
+    const [showCloseModal, setShowCloseModal] = useState(false);
+    const [selectedTicketForClose, setSelectedTicketForClose] = useState<any>(null);
+    const [workDone, setWorkDone] = useState("");
+    const [closingTicket, setClosingTicket] = useState(false);
 
     // Load tickets from Firebase with real-time updates
     useEffect(() => {
@@ -39,6 +59,19 @@ export default function TicketsPage() {
         return () => unsubscribe();
     }, []);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (showFilterDropdown && !target.closest('.relative')) {
+                setShowFilterDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showFilterDropdown]);
+
     // Reload function for manual refresh
     const loadTickets = async () => {
         try {
@@ -50,11 +83,141 @@ export default function TicketsPage() {
         }
     };
 
-    const filteredTickets = tickets.filter((ticket) =>
+    // Handle progress change from list view
+    const handleProgressChange = async (ticket: any, newProgress: string, event: React.MouseEvent) => {
+        event.stopPropagation(); // Prevent row click
+        
+        try {
+            // If changing to Completed, show close modal
+            if (newProgress === 'Completed' && !ticket.isClosed) {
+                setSelectedTicketForClose(ticket);
+                setWorkDone("");
+                setShowCloseModal(true);
+                return;
+            }
+
+            await ticketService.update(
+                ticket.id,
+                { progressStatus: newProgress },
+                {
+                    uid: user?.uid || 'system',
+                    email: user?.email || '',
+                    name: user?.displayName || user?.email || 'System',
+                },
+                ticket
+            );
+            toast.success("Progress updated");
+        } catch (error) {
+            console.error("Error updating progress:", error);
+            toast.error("Failed to update progress");
+        }
+    };
+
+    // Handle close ticket from list view
+    const handleCloseTicket = async () => {
+        if (!workDone.trim()) {
+            toast.error("Please describe the work done");
+            return;
+        }
+
+        if (!selectedTicketForClose) return;
+
+        setClosingTicket(true);
+        try {
+            await ticketService.closeTicket(
+                selectedTicketForClose.id,
+                workDone,
+                {
+                    uid: user?.uid || 'system',
+                    email: user?.email || '',
+                    name: user?.displayName || user?.email || 'System',
+                }
+            );
+            toast.success("Ticket closed successfully");
+            setShowCloseModal(false);
+            setWorkDone("");
+            setSelectedTicketForClose(null);
+        } catch (error) {
+            console.error("Error closing ticket:", error);
+            toast.error("Failed to close ticket");
+        } finally {
+            setClosingTicket(false);
+        }
+    };
+
+    // Handle add note button click
+    const handleAddNoteClick = (ticket: any, event: React.MouseEvent) => {
+        event.stopPropagation(); // Prevent row click
+        setSelectedTicketForNote(ticket);
+        setNoteText("");
+        setIsPublicNote(true);
+        setShowAddNoteModal(true);
+    };
+
+    // Handle add note submission
+    const handleAddNote = async () => {
+        if (!noteText.trim()) {
+            toast.error("Please enter a note");
+            return;
+        }
+
+        if (!selectedTicketForNote) return;
+
+        setAddingNote(true);
+        try {
+            await timelineService.logNote(
+                selectedTicketForNote.id,
+                noteText,
+                {
+                    uid: user?.uid || 'system',
+                    email: user?.email || '',
+                    name: user?.displayName || user?.email || 'System',
+                },
+                isPublicNote
+            );
+            toast.success("Note added successfully");
+            setShowAddNoteModal(false);
+            setNoteText("");
+            setSelectedTicketForNote(null);
+        } catch (error) {
+            console.error("Error adding note:", error);
+            toast.error("Failed to add note");
+        } finally {
+            setAddingNote(false);
+        }
+    };
+
+    // Apply filter based on selected option
+    const applyFilter = (ticketList: any[]) => {
+        switch (filterOption) {
+            case "my-open":
+                return ticketList.filter(
+                    (ticket) => ticket.assigneeId === user?.uid && ticket.status !== "resolved"
+                );
+            case "all":
+                return ticketList;
+            case "unassigned":
+                return ticketList.filter((ticket) => ticket.assigneeId === "unassigned");
+            case "open":
+                return ticketList.filter((ticket) => ticket.status === "open");
+            case "in-progress":
+                return ticketList.filter((ticket) => ticket.status === "in-progress");
+            case "resolved":
+                return ticketList.filter((ticket) => ticket.status === "resolved");
+            default:
+                return ticketList;
+        }
+    };
+
+    // Apply search filter
+    const searchFilteredTickets = tickets.filter((ticket) =>
         ticket.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ticket.ticketId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ticket.customer?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    // Apply both filters
+    const filteredTickets = applyFilter(searchFilteredTickets);
 
     const getTicketsByStatus = (status: string) => {
         return filteredTickets.filter((t) => t.status === status);
@@ -111,10 +274,50 @@ export default function TicketsPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" className="gap-2 shadow-sm">
-                                <Filter className="h-4 w-4" />
-                                Filters
-                            </Button>
+                            <div className="relative">
+                                <Button 
+                                    variant="outline" 
+                                    className="gap-2 shadow-sm"
+                                    onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                                >
+                                    <Filter className="h-4 w-4" />
+                                    {filterOption === "my-open" && "My Open Tickets"}
+                                    {filterOption === "all" && "All Tickets"}
+                                    {filterOption === "unassigned" && "Unassigned"}
+                                    {filterOption === "open" && "Open"}
+                                    {filterOption === "in-progress" && "In Progress"}
+                                    {filterOption === "resolved" && "Resolved"}
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                                {showFilterDropdown && (
+                                    <div className="absolute top-full mt-2 right-0 z-50 min-w-[200px] rounded-lg border bg-white dark:bg-slate-950 shadow-lg">
+                                        <div className="p-1">
+                                            {[
+                                                { value: "my-open" as FilterOption, label: "My Open Tickets" },
+                                                { value: "all" as FilterOption, label: "All Tickets" },
+                                                { value: "unassigned" as FilterOption, label: "Unassigned" },
+                                                { value: "open" as FilterOption, label: "Open" },
+                                                { value: "in-progress" as FilterOption, label: "In Progress" },
+                                                { value: "resolved" as FilterOption, label: "Resolved" },
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value}
+                                                    className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors"
+                                                    onClick={() => {
+                                                        setFilterOption(option.value);
+                                                        setShowFilterDropdown(false);
+                                                    }}
+                                                >
+                                                    <span>{option.label}</span>
+                                                    {filterOption === option.value && (
+                                                        <Check className="h-4 w-4 text-primary" />
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex items-center gap-1 rounded-lg border p-1 bg-accent/30">
                                 <Button
                                     variant={viewMode === "list" ? "default" : "ghost"}
@@ -181,6 +384,23 @@ export default function TicketsPage() {
                                                             <p className="text-sm text-muted-foreground line-clamp-2">
                                                                 {ticket.description}
                                                             </p>
+                                                            {ticket.progressStatus && (
+                                                                <Badge 
+                                                                    variant={
+                                                                        ticket.progressStatus === 'Completed' ? 'success' :
+                                                                        ticket.progressStatus === 'In Progress' ? 'warning' :
+                                                                        'outline'
+                                                                    }
+                                                                    className="text-xs"
+                                                                >
+                                                                    {ticket.progressStatus}
+                                                                </Badge>
+                                                            )}
+                                                            {ticket.isClosed && (
+                                                                <Badge variant="destructive" className="text-xs">
+                                                                    CLOSED
+                                                                </Badge>
+                                                            )}
                                                             <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
                                                                 <span>{ticket.customer}</span>
                                                                 <span>{ticket.assignee}</span>
@@ -216,8 +436,10 @@ export default function TicketsPage() {
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Customer</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Priority</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold">Progress</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Assignee</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y">
@@ -251,12 +473,44 @@ export default function TicketsPage() {
                                                             {ticket.priority}
                                                         </Badge>
                                                     </td>
+                                                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                                        <select
+                                                            value={ticket.progressStatus || 'Not Started'}
+                                                            onChange={(e) => handleProgressChange(ticket, e.target.value, e as any)}
+                                                            disabled={ticket.isClosed}
+                                                            className="rounded-md border border-input bg-transparent px-2 py-1 text-sm focus-ring disabled:opacity-50 cursor-pointer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <option value="Not Started">Not Started</option>
+                                                            <option value="In Progress">In Progress</option>
+                                                            <option value="Awaiting Customer">Awaiting Customer</option>
+                                                            <option value="Completed">Completed</option>
+                                                        </select>
+                                                    </td>
                                                     <td className="px-6 py-4">
-                                                        <Badge variant={statusColors[ticket.status as keyof typeof statusColors] as any} className="shadow-sm">
-                                                            {ticket.status}
-                                                        </Badge>
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge variant={statusColors[ticket.status as keyof typeof statusColors] as any} className="shadow-sm">
+                                                                {ticket.status}
+                                                            </Badge>
+                                                            {ticket.isClosed && (
+                                                                <Badge variant="destructive" className="shadow-sm">
+                                                                    CLOSED
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm">{ticket.assignee}</td>
+                                                    <td className="px-6 py-4">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="gap-2"
+                                                            onClick={(e) => handleAddNoteClick(ticket, e)}
+                                                        >
+                                                            <MessageSquare className="h-4 w-4" />
+                                                            Add Note
+                                                        </Button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -302,6 +556,135 @@ export default function TicketsPage() {
                 onClose={() => setShowNewTicketModal(false)}
                 onSuccess={loadTickets}
             />
+
+            {/* Add Note Modal */}
+            {showAddNoteModal && selectedTicketForNote && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md m-4">
+                        <div className="flex items-center justify-between border-b p-6">
+                            <div>
+                                <h2 className="text-xl font-bold">Add Note</h2>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    {selectedTicketForNote.ticketId} - {selectedTicketForNote.title}
+                                </p>
+                            </div>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => {
+                                    setShowAddNoteModal(false);
+                                    setNoteText("");
+                                    setSelectedTicketForNote(null);
+                                }}
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Note *</label>
+                                <textarea
+                                    value={noteText}
+                                    onChange={(e) => setNoteText(e.target.value)}
+                                    placeholder="Enter your note here..."
+                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="publicNoteModal"
+                                    checked={isPublicNote}
+                                    onChange={(e) => setIsPublicNote(e.target.checked)}
+                                    className="rounded"
+                                />
+                                <label htmlFor="publicNoteModal" className="text-sm">
+                                    Send to client (visible in WhatsApp)
+                                </label>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4 border-t">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => {
+                                        setShowAddNoteModal(false);
+                                        setNoteText("");
+                                        setSelectedTicketForNote(null);
+                                    }}
+                                    disabled={addingNote}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    onClick={handleAddNote}
+                                    disabled={addingNote || !noteText.trim()}
+                                >
+                                    {addingNote ? "Adding..." : "Add Note"}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Close Ticket Modal */}
+            {showCloseModal && selectedTicketForClose && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md m-4">
+                        <div className="flex items-center justify-between border-b p-6">
+                            <div>
+                                <h2 className="text-xl font-bold">Close Ticket</h2>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    {selectedTicketForClose.ticketId} - {selectedTicketForClose.title}
+                                </p>
+                            </div>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => {
+                                    setShowCloseModal(false);
+                                    setWorkDone("");
+                                    setSelectedTicketForClose(null);
+                                }}
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Work Done *</label>
+                                <textarea
+                                    value={workDone}
+                                    onChange={(e) => setWorkDone(e.target.value)}
+                                    placeholder="Describe the work that was completed..."
+                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4 border-t">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => {
+                                        setShowCloseModal(false);
+                                        setWorkDone("");
+                                        setSelectedTicketForClose(null);
+                                    }}
+                                    disabled={closingTicket}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    onClick={handleCloseTicket}
+                                    disabled={closingTicket || !workDone.trim()}
+                                    variant="destructive"
+                                >
+                                    {closingTicket ? "Closing..." : "Close Ticket"}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

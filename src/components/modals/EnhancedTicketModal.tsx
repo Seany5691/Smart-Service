@@ -227,6 +227,10 @@ export default function EnhancedTicketModal({
                 slaDeadline: slaDeadline.toISOString(),
                 pbxLink: selectedCustomer?.pbxLink || null,
                 hardware: hardwareSummary.length > 0 ? hardwareSummary : null,
+                progressStatus: 'Not Started',
+                isClosed: false,
+                closedAt: null,
+                closedBy: null,
             };
 
             await ticketService.create(ticketData, {

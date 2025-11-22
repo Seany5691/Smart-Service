@@ -202,7 +202,7 @@ export default function CustomersPage() {
                                 className="group cursor-pointer transition-all hover:shadow-2xl hover:scale-[1.02] border-0 shadow-lg overflow-hidden"
                                 onClick={() => handleView(customer)}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                                 <CardHeader className="pb-3 relative">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">

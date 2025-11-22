@@ -4,6 +4,9 @@ import {
     getDoc,
     setDoc,
     serverTimestamp,
+    query,
+    where,
+    getDocs,
 } from 'firebase/firestore';
 import { db } from './index';
 
@@ -154,16 +157,118 @@ export const settingsService = {
         }
     },
 
+    // Get default assignees configuration
+    async getDefaultAssignees() {
+        try {
+            const docRef = doc(db, 'settings', 'defaultAssignees');
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                return docSnap.data().userIds || [];
+            }
+            return [];
+        } catch (error) {
+            console.error("Error getting default assignees:", error);
+            return [];
+        }
+    },
+
+    // Update default assignees configuration
+    async updateDefaultAssignees(userIds: string[]) {
+        const docRef = doc(db, 'settings', 'defaultAssignees');
+        await setDoc(docRef, {
+            userIds,
+            updatedAt: serverTimestamp(),
+        });
+    },
+
     // Get technicians/users for assignment
     async getTechnicians() {
-        // This would typically come from a users collection
-        // For now, return a default list
-        return [
-            { id: "unassigned", name: "Unassigned" },
-            { id: "tech1", name: "John Smith" },
-            { id: "tech2", name: "Sarah Johnson" },
-            { id: "tech3", name: "Mike Williams" },
-            { id: "tech4", name: "Emily Brown" },
-        ];
+        try {
+            // Query users collection for active users
+            const q = query(
+                collection(db, 'users'),
+                where('isActive', '==', true)
+            );
+            const querySnapshot = await getDocs(q);
+            
+            // Map user data to the format expected by the ticket modal
+            const allUsers = querySnapshot.docs.map(doc => {
+                const userData = doc.data();
+                
+                // Construct name from firstName and lastName, fallback to displayName or email
+                let name = 'Unknown User';
+                if (userData.firstName && userData.lastName) {
+                    name = `${userData.firstName} ${userData.lastName}`;
+                } else if (userData.firstName) {
+                    name = userData.firstName;
+                } else if (userData.displayName) {
+                    name = userData.displayName;
+                } else if (userData.email) {
+                    name = userData.email;
+                }
+                
+                return {
+                    id: userData.uid,
+                    name: name,
+                };
+            });
+
+            // Get default assignees configuration
+            const defaultAssigneeIds = await this.getDefaultAssignees();
+            
+            // Filter users if default assignees are configured
+            let users = allUsers;
+            if (defaultAssigneeIds.length > 0) {
+                users = allUsers.filter(user => defaultAssigneeIds.includes(user.id));
+            }
+            
+            // Always include "Unassigned" option at the beginning
+            return [
+                { id: "unassigned", name: "Unassigned" },
+                ...users,
+            ];
+        } catch (error) {
+            console.error("Error getting technicians:", error);
+            // Return just unassigned if there's an error
+            return [
+                { id: "unassigned", name: "Unassigned" },
+            ];
+        }
+    },
+
+    // Get all users (for default assignees management)
+    async getAllUsers() {
+        try {
+            const q = query(
+                collection(db, 'users'),
+                where('isActive', '==', true)
+            );
+            const querySnapshot = await getDocs(q);
+            
+            return querySnapshot.docs.map(doc => {
+                const userData = doc.data();
+                
+                let name = 'Unknown User';
+                if (userData.firstName && userData.lastName) {
+                    name = `${userData.firstName} ${userData.lastName}`;
+                } else if (userData.firstName) {
+                    name = userData.firstName;
+                } else if (userData.displayName) {
+                    name = userData.displayName;
+                } else if (userData.email) {
+                    name = userData.email;
+                }
+                
+                return {
+                    id: userData.uid,
+                    name: name,
+                    email: userData.email,
+                };
+            });
+        } catch (error) {
+            console.error("Error getting all users:", error);
+            return [];
+        }
     },
 };

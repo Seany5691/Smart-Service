@@ -18,34 +18,44 @@ import {
     Clock,
     Package,
     Trash2,
+    CheckSquare,
 } from "lucide-react";
 import { customerService, ticketService } from "@/lib/firebase/services";
 import { hardwareService } from "@/lib/firebase/hardware";
+import { taskService, Task } from "@/lib/firebase/tasks";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import AddContactModal from "@/components/modals/AddContactModal";
 import CustomerModal from "@/components/modals/CustomerModal";
 import EnhancedTicketModal from "@/components/modals/EnhancedTicketModal";
 import AddHardwareModal from "@/components/modals/AddHardwareModal";
+import AddTaskModal from "@/components/modals/AddTaskModal";
+import TaskCard from "@/components/TaskCard";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CustomerDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { user } = useAuth();
     const customerId = params.id as string;
 
     const [customer, setCustomer] = useState<any>(null);
     const [tickets, setTickets] = useState<any[]>([]);
     const [hardware, setHardware] = useState<any[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [showContactModal, setShowContactModal] = useState(false);
     const [showTicketModal, setShowTicketModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showHardwareModal, setShowHardwareModal] = useState(false);
+    const [showAddTaskModal, setShowAddTaskModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState(false);
     const [hardwareToDelete, setHardwareToDelete] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<"details" | "contacts" | "tickets" | "hardware" | "documents">("details");
+    const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<"details" | "contacts" | "tickets" | "hardware" | "tasks" | "documents">("details");
 
     // Load customer and tickets
     useEffect(() => {
@@ -74,6 +84,14 @@ export default function CustomerDetailPage() {
                     console.error("Error loading hardware:", hardwareError);
                     setHardware([]);
                 }
+
+                try {
+                    const tasksData = await taskService.getByCustomer(customerId);
+                    setTasks(tasksData);
+                } catch (taskError) {
+                    console.error("Error loading tasks:", taskError);
+                    setTasks([]);
+                }
             } catch (error) {
                 console.error("Error loading customer:", error);
                 toast.error("Failed to load customer");
@@ -83,6 +101,27 @@ export default function CustomerDetailPage() {
         };
 
         loadData();
+
+        // Subscribe to customer tasks (with error handling)
+        let unsubscribeTasks: (() => void) | undefined;
+        try {
+            unsubscribeTasks = taskService.subscribeToCustomerTasks(customerId, (data) => {
+                setTasks(data);
+            });
+        } catch (error) {
+            console.error("Error subscribing to customer tasks:", error);
+            // Indexes might still be building, tasks will load from initial query
+        }
+
+        return () => {
+            if (unsubscribeTasks) {
+                try {
+                    unsubscribeTasks();
+                } catch (error) {
+                    console.error("Error unsubscribing from tasks:", error);
+                }
+            }
+        };
     }, [customerId]);
 
     const handleContactSuccess = () => {
@@ -99,6 +138,45 @@ export default function CustomerDetailPage() {
             return format(date, "MMM dd, yyyy");
         } catch {
             return "N/A";
+        }
+    };
+
+    // Task handlers
+    const handleCompleteTask = async (taskId: string) => {
+        try {
+            await taskService.complete(taskId, {
+                uid: user?.uid || '',
+                name: user?.displayName || user?.email || 'Unknown',
+                email: user?.email || ''
+            });
+            toast.success("Task completed!");
+        } catch (error) {
+            console.error("Error completing task:", error);
+            toast.error("Failed to complete task");
+        }
+    };
+
+    const handleUncompleteTask = async (taskId: string) => {
+        try {
+            await taskService.uncomplete(taskId);
+            toast.success("Task marked as incomplete");
+        } catch (error) {
+            console.error("Error uncompleting task:", error);
+            toast.error("Failed to update task");
+        }
+    };
+
+    const handleDeleteTask = async () => {
+        if (!taskToDelete) return;
+        
+        try {
+            await taskService.delete(taskToDelete);
+            toast.success("Task deleted");
+            setShowDeleteTaskConfirm(false);
+            setTaskToDelete(null);
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            toast.error("Failed to delete task");
         }
     };
 
@@ -260,6 +338,16 @@ export default function CustomerDetailPage() {
                         }`}
                     >
                         Hardware ({hardware.reduce((sum, h) => sum + h.quantity, 0)})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("tasks")}
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                            activeTab === "tasks"
+                                ? "border-primary text-primary"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                        Tasks ({tasks.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("documents")}
@@ -508,6 +596,46 @@ export default function CustomerDetailPage() {
                         </CardContent>
                     </Card>
                     )}
+
+                    {/* Tasks Tab */}
+                    {activeTab === "tasks" && (
+                        <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Tasks ({tasks.length})</CardTitle>
+                            <Button size="sm" onClick={() => setShowAddTaskModal(true)}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Task
+                            </Button>
+                        </CardHeader>
+                        <CardContent>
+                            {tasks.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                                    <p className="text-muted-foreground mb-4">No tasks for this customer yet</p>
+                                    <Button onClick={() => setShowAddTaskModal(true)}>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add First Task
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {tasks.map((task) => (
+                                        <TaskCard
+                                            key={task.id}
+                                            task={task}
+                                            onComplete={handleCompleteTask}
+                                            onUncomplete={handleUncompleteTask}
+                                            onDelete={(id) => {
+                                                setTaskToDelete(id);
+                                                setShowDeleteTaskConfirm(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                    )}
                 </div>
 
                 {/* Sidebar - Always Visible */}
@@ -521,6 +649,10 @@ export default function CustomerDetailPage() {
                             <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowTicketModal(true)}>
                                 <Ticket className="h-4 w-4" />
                                 Create Ticket
+                            </Button>
+                            <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowAddTaskModal(true)}>
+                                <CheckSquare className="h-4 w-4" />
+                                Add Task
                             </Button>
                             <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowContactModal(true)}>
                                 <Plus className="h-4 w-4" />
@@ -645,6 +777,34 @@ export default function CustomerDetailPage() {
                 }}
                 title="Delete Hardware"
                 message="Are you sure you want to delete this hardware item? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                variant="danger"
+            />
+
+            {/* Add Task Modal */}
+            <AddTaskModal
+                isOpen={showAddTaskModal}
+                onClose={() => setShowAddTaskModal(false)}
+                onSuccess={() => {
+                    setShowAddTaskModal(false);
+                    toast.success("Task created successfully!");
+                }}
+                prefilledCustomerId={customerId}
+                prefilledCustomerName={customer?.companyName}
+                source="customer"
+            />
+
+            {/* Delete Task Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showDeleteTaskConfirm}
+                onClose={() => {
+                    setShowDeleteTaskConfirm(false);
+                    setTaskToDelete(null);
+                }}
+                onConfirm={handleDeleteTask}
+                title="Delete Task"
+                message="Are you sure you want to delete this task? This action cannot be undone."
                 confirmText="Delete"
                 cancelText="Cancel"
                 variant="danger"

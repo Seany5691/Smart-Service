@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import { onAuthChange } from '@/lib/firebase/auth';
+import { userService } from '@/lib/firebase/users';
 
 interface AuthContextType {
     user: User | null;
@@ -18,8 +19,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthChange((user) => {
+        const unsubscribe = onAuthChange(async (user) => {
             setUser(user);
+            
+            // Create or update user profile in Firestore when user logs in
+            if (user) {
+                try {
+                    await userService.createOrUpdateUser(user);
+                } catch (error) {
+                    console.error('Failed to create/update user profile:', error);
+                }
+            }
+            
             setLoading(false);
         });
 

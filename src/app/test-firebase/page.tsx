@@ -91,7 +91,7 @@ export default function TestFirebasePage() {
 
         // Test 5: Check Collections
         try {
-            const collections = ["customers", "tickets", "timeline"];
+            const collections = ["customers", "tickets", "timeline", "users", "userPreferences"];
             const collectionStatus: any = {};
             
             for (const collectionName of collections) {
@@ -108,6 +108,60 @@ export default function TestFirebasePage() {
             testResults.collections = {
                 status: "error",
                 message: "Failed to check collections",
+                error: error.message
+            };
+        }
+
+        // Test 6: User Profile Verification
+        try {
+            const user = auth.currentUser;
+            if (user) {
+                const userDoc = await getDocs(collection(db, "users"));
+                const userProfile = userDoc.docs.find(doc => doc.id === user.uid);
+                
+                if (userProfile) {
+                    const data = userProfile.data();
+                    const hasRequiredFields = 
+                        data.uid && 
+                        data.email && 
+                        data.role && 
+                        typeof data.isActive === 'boolean' &&
+                        data.createdAt &&
+                        data.updatedAt;
+                    
+                    testResults.userProfile = {
+                        status: hasRequiredFields ? "success" : "warning",
+                        message: hasRequiredFields 
+                            ? "User profile exists with correct structure" 
+                            : "User profile exists but missing some fields",
+                        details: {
+                            uid: data.uid,
+                            email: data.email,
+                            displayName: data.displayName,
+                            role: data.role,
+                            isActive: data.isActive,
+                            hasCreatedAt: !!data.createdAt,
+                            hasUpdatedAt: !!data.updatedAt
+                        }
+                    };
+                } else {
+                    testResults.userProfile = {
+                        status: "warning",
+                        message: "User profile not found in Firestore (will be created on next login)",
+                        details: { userId: user.uid }
+                    };
+                }
+            } else {
+                testResults.userProfile = {
+                    status: "warning",
+                    message: "Not logged in - cannot verify user profile",
+                    details: null
+                };
+            }
+        } catch (error: any) {
+            testResults.userProfile = {
+                status: "error",
+                message: "Failed to verify user profile",
                 error: error.message
             };
         }
@@ -231,8 +285,20 @@ export default function TestFirebasePage() {
                                         <li>Customers: {results.collections.details.customers || 0}</li>
                                         <li>Tickets: {results.collections.details.tickets || 0}</li>
                                         <li>Timeline Entries: {results.collections.details.timeline || 0}</li>
+                                        <li>Users: {results.collections.details.users || 0}</li>
+                                        <li>User Preferences: {results.collections.details.userPreferences || 0}</li>
                                     </ul>
                                 </div>
+                            )}
+                            {results.userProfile?.status === "success" && (
+                                <p className="text-green-600">
+                                    ✅ User profile verified with correct structure
+                                </p>
+                            )}
+                            {results.userProfile?.status === "warning" && results.userProfile?.message.includes("not found") && (
+                                <p className="text-yellow-600">
+                                    ⚠️ User profile will be automatically created when you refresh the page or log in again
+                                </p>
                             )}
                             {Object.values(results).every((r: any) => r.status === "success") && (
                                 <p className="text-green-600 font-medium">

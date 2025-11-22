@@ -13,33 +13,60 @@ import {
     AlertTriangle,
     Box,
 } from "lucide-react";
-import { hardwareService } from "@/lib/firebase/hardware";
+import { inventoryService } from "@/lib/firebase/services";
+import { formatCurrency } from "@/lib/utils/currency";
+import AddInventoryModal from "@/components/modals/AddInventoryModal";
+import { toast } from "sonner";
 
 export default function InventoryPage() {
-    const [hardware, setHardware] = useState<any[]>([]);
+    const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [stats, setStats] = useState({
+        totalItems: 0,
+        inStock: 0,
+        lowStock: 0,
+        totalValue: 0,
+    });
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+    const loadInventory = async () => {
+        try {
+            setLoading(true);
+            const [items, statsData] = await Promise.all([
+                inventoryService.getAll(),
+                inventoryService.getStats(),
+            ]);
+            
+            // Calculate status for each item
+            const itemsWithStatus = items.map((item: any) => ({
+                ...item,
+                status: inventoryService.calculateStatus(item.quantity || 0),
+            }));
+            
+            setInventoryItems(itemsWithStatus);
+            setStats(statsData);
+        } catch (error) {
+            console.error("Error loading inventory:", error);
+            toast.error("Failed to load inventory data");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadInventory = async () => {
-            try {
-                // This would need a method to get all hardware across all customers
-                // For now, showing placeholder
-                setHardware([]);
-            } catch (error) {
-                console.error("Error loading inventory:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         loadInventory();
     }, []);
 
-    const stats = [
+    const filteredItems = inventoryItems.filter(item =>
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const statsCards = [
         {
             name: "Total Items",
-            value: "248",
+            value: loading ? "..." : stats.totalItems.toString(),
             icon: Package,
             gradient: "from-blue-500 to-indigo-600",
             iconBg: "bg-blue-500/10",
@@ -47,7 +74,7 @@ export default function InventoryPage() {
         },
         {
             name: "In Stock",
-            value: "186",
+            value: loading ? "..." : stats.inStock.toString(),
             icon: Box,
             gradient: "from-emerald-500 to-teal-600",
             iconBg: "bg-emerald-500/10",
@@ -55,7 +82,7 @@ export default function InventoryPage() {
         },
         {
             name: "Low Stock",
-            value: "12",
+            value: loading ? "..." : stats.lowStock.toString(),
             icon: AlertTriangle,
             gradient: "from-amber-500 to-orange-600",
             iconBg: "bg-amber-500/10",
@@ -63,7 +90,7 @@ export default function InventoryPage() {
         },
         {
             name: "Value",
-            value: "$45.2K",
+            value: loading ? "..." : formatCurrency(stats.totalValue),
             icon: TrendingUp,
             gradient: "from-purple-500 to-pink-600",
             iconBg: "bg-purple-500/10",
@@ -71,18 +98,16 @@ export default function InventoryPage() {
         },
     ];
 
-    const inventoryItems = [
-        { id: 1, name: "IP Phone Yealink T46S", category: "Telephony", quantity: 45, location: "Warehouse A", status: "in-stock" },
-        { id: 2, name: "Network Switch 24-Port", category: "Networking", quantity: 8, location: "Warehouse A", status: "low-stock" },
-        { id: 3, name: "CCTV Camera 4MP", category: "Security", quantity: 32, location: "Warehouse B", status: "in-stock" },
-        { id: 4, name: "Router Cisco RV340", category: "Networking", quantity: 15, location: "Warehouse A", status: "in-stock" },
-        { id: 5, name: "Printer HP LaserJet", category: "Office", quantity: 3, location: "Warehouse B", status: "low-stock" },
-    ];
-
-    const filteredItems = inventoryItems.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+                    <p className="mt-4 text-muted-foreground">Loading inventory...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -104,6 +129,7 @@ export default function InventoryPage() {
                     <Button 
                         size="lg"
                         className="gap-2 bg-white text-orange-600 hover:bg-orange-50 shadow-lg"
+                        onClick={() => setIsAddModalOpen(true)}
                     >
                         <Plus className="h-5 w-5" />
                         Add Item
@@ -113,7 +139,7 @@ export default function InventoryPage() {
 
             {/* Stats */}
             <div className="grid gap-6 md:grid-cols-4">
-                {stats.map((stat) => (
+                {statsCards.map((stat) => (
                     <Card key={stat.name} className="relative overflow-hidden border-0 shadow-lg">
                         <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5`}></div>
                         <CardContent className="relative p-6">
@@ -159,6 +185,7 @@ export default function InventoryPage() {
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Item Name</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Quantity</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Unit Price</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Location</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                                 </tr>
@@ -169,16 +196,39 @@ export default function InventoryPage() {
                                         <td className="px-6 py-4 font-medium">{item.name}</td>
                                         <td className="px-6 py-4 text-sm">{item.category}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`font-semibold ${
-                                                item.status === "low-stock" ? "text-amber-600" : ""
-                                            }`}>
-                                                {item.quantity}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`font-semibold ${
+                                                    item.status === "low-stock" ? "text-amber-600" : 
+                                                    item.status === "out-of-stock" ? "text-red-600" : ""
+                                                }`}>
+                                                    {item.quantity}
+                                                </span>
+                                                {item.status === "low-stock" && (
+                                                    <Badge variant="warning" className="text-xs">
+                                                        <AlertTriangle className="h-3 w-3 mr-1" />
+                                                        Low
+                                                    </Badge>
+                                                )}
+                                                {item.status === "out-of-stock" && (
+                                                    <Badge variant="destructive" className="text-xs">
+                                                        Out
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm">
+                                            {formatCurrency(item.unitPrice || 0)}
                                         </td>
                                         <td className="px-6 py-4 text-sm">{item.location}</td>
                                         <td className="px-6 py-4">
-                                            <Badge variant={item.status === "in-stock" ? "success" : "warning"}>
-                                                {item.status === "in-stock" ? "In Stock" : "Low Stock"}
+                                            <Badge variant={
+                                                item.status === "in-stock" ? "success" : 
+                                                item.status === "low-stock" ? "warning" : 
+                                                "destructive"
+                                            }>
+                                                {item.status === "in-stock" ? "In Stock" : 
+                                                 item.status === "low-stock" ? "Low Stock" : 
+                                                 "Out of Stock"}
                                             </Badge>
                                         </td>
                                     </tr>
@@ -197,6 +247,13 @@ export default function InventoryPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Add Inventory Modal */}
+            <AddInventoryModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSuccess={loadInventory}
+            />
         </div>
     );
 }
