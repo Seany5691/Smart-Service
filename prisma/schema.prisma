@@ -1,0 +1,611 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  role          Role      @default(TECHNICIAN)
+  avatar        String?
+  phone         String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  assignedTickets    TicketAssignment[]
+  timeEntries        TimeEntry[]
+  ticketNotes        TicketNote[]
+  timelineEvents     TicketTimeline[]
+  createdTickets     Ticket[]          @relation("CreatedBy")
+  
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  TECHNICIAN
+  VIEWER
+}
+
+// ============================================
+// CUSTOMER MANAGEMENT
+// ============================================
+
+model Customer {
+  id                String    @id @default(cuid())
+  name              String
+  companyName       String
+  email             String
+  phone             String
+  address           String?
+  city              String?
+  postalCode        String?
+  taxNumber         String?
+  notes             String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  sites             Site[]
+  contracts         Contract[]
+  tickets           Ticket[]
+  slaRules          SLARule[]
+  whatsappGroups    WhatsAppGroup[]
+  
+  @@map("customers")
+}
+
+model Site {
+  id            String    @id @default(cuid())
+  customerId    String
+  name          String
+  address       String
+  city          String?
+  postalCode    String?
+  contactName   String?
+  contactPhone  String?
+  contactEmail  String?
+  notes         String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tickets       Ticket[]
+  whatsappGroups WhatsAppGroup[]
+  
+  @@map("sites")
+}
+
+model Contract {
+  id                String    @id @default(cuid())
+  customerId        String
+  contractNumber    String    @unique
+  startDate         DateTime
+  endDate           DateTime
+  renewalDate       DateTime?
+  value             Float?
+  billingCycle      String?   // Monthly, Quarterly, Annually
+  status            ContractStatus @default(ACTIVE)
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  customer          Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  servicePackages   ServicePackage[]
+  
+  @@map("contracts")
+}
+
+enum ContractStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+model ServicePackage {
+  id            String    @id @default(cuid())
+  contractId    String
+  name          String
+  description   String?
+  categories    String[]  // Array of service categories included
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  contract      Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  @@map("service_packages")
+}
+
+// ============================================
+// TICKET SYSTEM
+// ============================================
+
+model ServiceCategory {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  code          String    @unique  // TEL, COP, CCTV, INT, OA
+  description   String?
+  icon          String?
+  color         String?
+  isActive      Boolean   @default(true)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  subCategories SubCategory[]
+  tickets       Ticket[]
+  customFields  CustomField[]
+  slaRules      SLARule[]
+  
+  @@map("service_categories")
+}
+
+model SubCategory {
+  id            String    @id @default(cuid())
+  categoryId    String
+  name          String
+  description   String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  category      ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tickets       Ticket[]
+  
+  @@map("sub_categories")
+}
+
+model Priority {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  level         Int       @unique  // 1=Low, 2=Medium, 3=High, 4=Critical
+  color         String
+  description   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  tickets       Ticket[]
+  slaRules      SLARule[]
+  
+  @@map("priorities")
+}
+
+model TicketStatus {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  slug          String    @unique
+  color         String
+  description   String?
+  isDefault     Boolean   @default(false)
+  isClosed      Boolean   @default(false)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  tickets       Ticket[]
+  
+  @@map("ticket_statuses")
+}
+
+model Ticket {
+  id                String    @id @default(cuid())
+  ticketNumber      String    @unique
+  title             String
+  description       String?
+  
+  // Relationships
+  customerId        String
+  siteId            String?
+  categoryId        String
+  subCategoryId     String?
+  priorityId        String
+  statusId          String
+  createdById       String
+  
+  // Metadata
+  source            TicketSource @default(MANUAL)
+  dueDate           DateTime?
+  resolvedAt        DateTime?
+  closedAt          DateTime?
+  
+  // Custom fields (JSON)
+  customFieldValues Json?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  customer          Customer  @relation(fields: [customerId], references: [id])
+  site              Site?     @relation(fields: [siteId], references: [id])
+  category          ServiceCategory @relation(fields: [categoryId], references: [id])
+  subCategory       SubCategory? @relation(fields: [subCategoryId], references: [id])
+  priority          Priority  @relation(fields: [priorityId], references: [id])
+  status            TicketStatus @relation(fields: [statusId], references: [id])
+  createdBy         User      @relation("CreatedBy", fields: [createdById], references: [id])
+  
+  assignments       TicketAssignment[]
+  timeline          TicketTimeline[]
+  notes             TicketNote[]
+  attachments       TicketAttachment[]
+  timeEntries       TimeEntry[]
+  partsUsed         TicketParts[]
+  whatsappMessages  WhatsAppMessage[]
+  
+  @@map("tickets")
+}
+
+enum TicketSource {
+  MANUAL
+  WHATSAPP
+  EMAIL
+  PHONE
+  WEB_FORM
+}
+
+model TicketAssignment {
+  id            String    @id @default(cuid())
+  ticketId      String
+  userId        String
+  assignedAt    DateTime  @default(now())
+  assignedBy    String?
+  isPrimary     Boolean   @default(false)
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  
+  @@map("ticket_assignments")
+}
+
+model TicketTimeline {
+  id            String    @id @default(cuid())
+  ticketId      String
+  userId        String?
+  eventType     TimelineEventType
+  title         String
+  description   String?
+  metadata      Json?     // Store additional event data
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user          User?     @relation(fields: [userId], references: [id])
+  
+  @@map("ticket_timeline")
+  @@index([ticketId, createdAt])
+}
+
+enum TimelineEventType {
+  CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNED
+  NOTE_ADDED
+  ATTACHMENT_ADDED
+  TIME_LOGGED
+  PARTS_USED
+  WHATSAPP_MESSAGE
+  RESOLVED
+  CLOSED
+  REOPENED
+}
+
+model TicketNote {
+  id            String    @id @default(cuid())
+  ticketId      String
+  userId        String
+  content       String
+  isInternal    Boolean   @default(false)
+  sentToWhatsApp Boolean  @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  
+  @@map("ticket_notes")
+}
+
+model TicketAttachment {
+  id            String    @id @default(cuid())
+  ticketId      String
+  fileName      String
+  originalName  String
+  filePath      String
+  fileSize      Int
+  mimeType      String
+  fileType      AttachmentType
+  uploadedBy    String?
+  source        String?   // whatsapp, manual, etc.
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  @@map("ticket_attachments")
+}
+
+enum AttachmentType {
+  IMAGE
+  PDF
+  DOCUMENT
+  VIDEO
+  AUDIO
+  OTHER
+}
+
+model CustomField {
+  id            String    @id @default(cuid())
+  categoryId    String
+  name          String
+  label         String
+  fieldType     CustomFieldType
+  options       String[]  // For select/radio fields
+  isRequired    Boolean   @default(false)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  category      ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@map("custom_fields")
+}
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  SELECT
+  MULTISELECT
+  CHECKBOX
+  TEXTAREA
+}
+
+// ============================================
+// TIME TRACKING
+// ============================================
+
+model TimeEntry {
+  id            String    @id @default(cuid())
+  ticketId      String
+  userId        String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime?
+  duration      Int?      // Duration in minutes
+  isBillable    Boolean   @default(true)
+  isManual      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  
+  @@map("time_entries")
+}
+
+// ============================================
+// INVENTORY MODULE
+// ============================================
+
+model InventoryItem {
+  id            String    @id @default(cuid())
+  name          String
+  sku           String    @unique
+  description   String?
+  category      String?
+  unitPrice     Float?
+  minStockLevel Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  stock         Stock[]
+  ticketParts   TicketParts[]
+  
+  @@map("inventory_items")
+}
+
+model InventoryLocation {
+  id            String    @id @default(cuid())
+  name          String
+  type          LocationType
+  address       String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  stock         Stock[]
+  
+  @@map("inventory_locations")
+}
+
+enum LocationType {
+  WAREHOUSE
+  VAN
+  OFFICE
+}
+
+model Stock {
+  id            String    @id @default(cuid())
+  itemId        String
+  locationId    String
+  quantity      Int       @default(0)
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  item          InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  location      InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  
+  @@unique([itemId, locationId])
+  @@map("stock")
+}
+
+model TicketParts {
+  id            String    @id @default(cuid())
+  ticketId      String
+  itemId        String
+  quantity      Int
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  item          InventoryItem @relation(fields: [itemId], references: [id])
+  
+  @@map("ticket_parts")
+}
+
+// ============================================
+// WHATSAPP INTEGRATION
+// ============================================
+
+model WhatsAppGroup {
+  id            String    @id @default(cuid())
+  customerId    String
+  siteId        String?
+  groupId       String    @unique
+  groupName     String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  site          Site?     @relation(fields: [siteId], references: [id])
+  messages      WhatsAppMessage[]
+  
+  @@map("whatsapp_groups")
+}
+
+model WhatsAppMessage {
+  id            String    @id @default(cuid())
+  groupId       String
+  ticketId      String?
+  messageId     String    @unique
+  senderId      String
+  senderName    String
+  content       String?
+  messageType   WhatsAppMessageType
+  mediaUrl      String?
+  isFromClient  Boolean   @default(true)
+  timestamp     DateTime
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  group         WhatsAppGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  ticket        Ticket?   @relation(fields: [ticketId], references: [id])
+  
+  @@map("whatsapp_messages")
+  @@index([groupId, timestamp])
+}
+
+enum WhatsAppMessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  STICKER
+}
+
+model WhatsAppTemplate {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  content       String
+  category      String?
+  variables     String[]  // Placeholders like {customer_name}, {ticket_number}
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("whatsapp_templates")
+}
+
+// ============================================
+// SLA & REPORTING
+// ============================================
+
+model SLARule {
+  id            String    @id @default(cuid())
+  name          String
+  categoryId    String?
+  priorityId    String?
+  customerId    String?
+  responseTime  Int       // Minutes
+  resolutionTime Int      // Minutes
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  category      ServiceCategory? @relation(fields: [categoryId], references: [id])
+  priority      Priority? @relation(fields: [priorityId], references: [id])
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  
+  @@map("sla_rules")
+}
+
+model Report {
+  id            String    @id @default(cuid())
+  name          String
+  type          ReportType
+  parameters    Json
+  filePath      String?
+  generatedBy   String?
+  createdAt     DateTime  @default(now())
+  
+  @@map("reports")
+}
+
+enum ReportType {
+  MONTHLY_CLIENT
+  TECHNICIAN_PERFORMANCE
+  RECURRING_ISSUES
+  TIME_BILLING
+  SLA_COMPLIANCE
+  INVENTORY_USAGE
+}
+
+// ============================================
+// SYSTEM SETTINGS
+// ============================================
+
+model SystemSetting {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         String
+  description   String?
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("system_settings")
+}
