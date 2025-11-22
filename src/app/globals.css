@@ -566,7 +566,6 @@ a, button, input, select, textarea, [role="button"], [role="link"], [tabindex]:n
 @media (max-width: 767px) {
   /* Ensure text doesn't extend beyond viewport */
   body {
-    overflow-x: hidden;
     word-wrap: break-word;
     overflow-wrap: break-word;
   }

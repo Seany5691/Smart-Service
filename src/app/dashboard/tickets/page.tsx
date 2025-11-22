@@ -22,16 +22,23 @@ import Link from "next/link";
 import EnhancedTicketModal from "@/components/modals/EnhancedTicketModal";
 import { ticketService } from "@/lib/firebase/services";
 import { timelineService } from "@/lib/firebase/timeline";
+import { taskService } from "@/lib/firebase/tasks";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { LoadingState, SkeletonTable } from "@/components/LoadingState";
+import { SkeletonTable } from "@/components/LoadingState";
 import { EmptyState } from "@/components/EmptyState";
 
 type FilterOption = "my-open" | "all" | "unassigned" | "open" | "in-progress" | "resolved";
 
 export default function TicketsPage() {
     const { user } = useAuth();
-    const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar">("list");
+    // Default to kanban (card) view on mobile, list view on desktop
+    const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar">(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth < 768 ? "kanban" : "list";
+        }
+        return "list";
+    });
     const [searchQuery, setSearchQuery] = useState("");
     const [showNewTicketModal, setShowNewTicketModal] = useState(false);
     const [tickets, setTickets] = useState<any[]>([]);
@@ -42,6 +49,7 @@ export default function TicketsPage() {
     const [selectedTicketForNote, setSelectedTicketForNote] = useState<any>(null);
     const [noteText, setNoteText] = useState("");
     const [isPublicNote, setIsPublicNote] = useState(true);
+    const [pinToTasks, setPinToTasks] = useState(false);
     const [addingNote, setAddingNote] = useState(false);
     const [showCloseModal, setShowCloseModal] = useState(false);
     const [selectedTicketForClose, setSelectedTicketForClose] = useState<any>(null);
@@ -154,6 +162,7 @@ export default function TicketsPage() {
         setSelectedTicketForNote(ticket);
         setNoteText("");
         setIsPublicNote(true);
+        setPinToTasks(false);
         setShowAddNoteModal(true);
     };
 
@@ -178,10 +187,27 @@ export default function TicketsPage() {
                 },
                 isPublicNote
             );
-            toast.success("Note added successfully");
+
+            // If "Pin to Tasks" is checked, create a task
+            if (pinToTasks && user) {
+                await taskService.create({
+                    description: noteText,
+                    ticketId: selectedTicketForNote.id,
+                    ticketNumber: selectedTicketForNote.ticketId,
+                    assignedTo: [user.uid],
+                    createdBy: user.uid,
+                    createdByName: user.displayName || user.email || 'Unknown',
+                    createdByEmail: user.email || '',
+                    source: 'note_pin' as const,
+                    completed: false,
+                });
+            }
+
             setShowAddNoteModal(false);
             setNoteText("");
+            setPinToTasks(false);
             setSelectedTicketForNote(null);
+            toast.success(pinToTasks ? "Note added and pinned to tasks!" : "Note added successfully");
         } catch (error) {
             console.error("Error adding note:", error);
             toast.error("Failed to add note");
@@ -356,71 +382,122 @@ export default function TicketsPage() {
                 <SkeletonTable />
             ) : (
                 <>
-                    {/* Kanban View */}
+                    {/* Card View (Enhanced for Mobile) */}
                     {viewMode === "kanban" && (
-                        <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-thin">
-                            <div className="flex gap-4 lg:grid lg:grid-cols-4 min-w-max lg:min-w-0">
-                                {["open", "in-progress", "pending", "resolved"].map((status) => (
-                                    <div key={status} className="space-y-3 w-[280px] lg:w-auto flex-shrink-0">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="font-semibold capitalize">{status.replace("-", " ")}</h3>
-                                            <Badge variant="outline">{getTicketsByStatus(status).length}</Badge>
-                                        </div>
+                        <div className="space-y-3">
+                            {filteredTickets.map((ticket) => (
+                                <Card key={ticket.id} className="shadow-md hover:shadow-lg transition-shadow">
+                                    <CardContent className="p-4">
                                         <div className="space-y-3">
-                                            {getTicketsByStatus(status).map((ticket) => (
-                                                <Link key={ticket.id} href={`/dashboard/tickets/${ticket.id}`}>
-                                                    <Card className="cursor-pointer transition-smooth hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
-                                                        <CardContent className="p-4">
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-start justify-between gap-2">
-                                                                    <span className="text-xs font-mono text-muted-foreground">
-                                                                        {ticket.ticketId}
-                                                                    </span>
-                                                                    <Badge variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}>
-                                                                        {ticket.priority}
-                                                                    </Badge>
-                                                                </div>
-                                                                <h4 className="font-medium line-clamp-2">{ticket.title}</h4>
-                                                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                                                    {ticket.description}
-                                                                </p>
-                                                                {ticket.progressStatus && (
-                                                                    <Badge 
-                                                                        variant={
-                                                                            ticket.progressStatus === 'Completed' ? 'success' :
-                                                                            ticket.progressStatus === 'In Progress' ? 'warning' :
-                                                                            'outline'
-                                                                        }
-                                                                        className="text-xs"
-                                                                    >
-                                                                        {ticket.progressStatus}
-                                                                    </Badge>
-                                                                )}
-                                                                {ticket.isClosed && (
-                                                                    <Badge variant="destructive" className="text-xs">
-                                                                        CLOSED
-                                                                    </Badge>
-                                                                )}
-                                                                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-                                                                    <span className="truncate">{ticket.customer}</span>
-                                                                    <span className="truncate ml-2">{ticket.assignee}</span>
-                                                                </div>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
+                                            {/* Header: Ticket ID and Priority */}
+                                            <div className="flex items-start justify-between gap-2">
+                                                <Link 
+                                                    href={`/dashboard/tickets/${ticket.id}`}
+                                                    className="text-sm font-mono font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                                                >
+                                                    {ticket.ticketId}
                                                 </Link>
-                                            ))}
-                                            {getTicketsByStatus(status).length === 0 && (
-                                                <Card className="border-dashed">
-                                                    <CardContent className="p-6 lg:p-8 text-center text-sm text-muted-foreground">
-                                                        No {status.replace("-", " ")} tickets
-                                                    </CardContent>
-                                                </Card>
-                                            )}
+                                                <Badge variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}>
+                                                    {ticket.priority}
+                                                </Badge>
+                                            </div>
+
+                                            {/* Title and Category */}
+                                            <div>
+                                                <Link 
+                                                    href={`/dashboard/tickets/${ticket.id}`}
+                                                    className="font-medium text-base hover:text-blue-600 transition-colors"
+                                                >
+                                                    {ticket.title}
+                                                </Link>
+                                                {ticket.subcategory && (
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        {ticket.category} • {ticket.subcategory}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Customer and Assignee */}
+                                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground">Customer</p>
+                                                    <p className="font-medium truncate">{ticket.customer || ticket.companyName}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground">Assignee</p>
+                                                    <p className="font-medium truncate">{ticket.assignee}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress Dropdown */}
+                                            <div>
+                                                <label className="text-xs text-muted-foreground block mb-1">Progress</label>
+                                                <select
+                                                    value={ticket.progressStatus || 'Not Started'}
+                                                    onChange={(e) => handleProgressChange(ticket, e.target.value, e as any)}
+                                                    disabled={ticket.isClosed}
+                                                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring disabled:opacity-50"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <option value="Not Started">Not Started</option>
+                                                    <option value="In Progress">In Progress</option>
+                                                    <option value="Awaiting Customer">Awaiting Customer</option>
+                                                    <option value="Completed">Completed</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Status Badges */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <Badge variant={statusColors[ticket.status as keyof typeof statusColors] as any}>
+                                                    {ticket.status}
+                                                </Badge>
+                                                {ticket.isClosed && (
+                                                    <Badge variant="destructive">
+                                                        CLOSED
+                                                    </Badge>
+                                                )}
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="flex gap-2 pt-2 border-t">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex-1 gap-2"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleAddNoteClick(ticket, e);
+                                                    }}
+                                                >
+                                                    <MessageSquare className="h-4 w-4" />
+                                                    Add Note
+                                                </Button>
+                                                <Button
+                                                    variant="default"
+                                                    size="sm"
+                                                    className="flex-1"
+                                                    onClick={() => window.location.href = `/dashboard/tickets/${ticket.id}`}
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            {filteredTickets.length === 0 && (
+                                <Card className="border-dashed">
+                                    <CardContent className="p-8 lg:p-16">
+                                        <EmptyState
+                                            icon={Ticket}
+                                            title="No tickets found"
+                                            description={searchQuery ? "Try adjusting your search filters" : "Create your first ticket to get started!"}
+                                            actionLabel={!searchQuery ? "Create Ticket" : undefined}
+                                            onAction={!searchQuery ? () => setShowNewTicketModal(true) : undefined}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                     )}
 
@@ -514,23 +591,23 @@ export default function TicketsPage() {
                                                     </td>
                                                 </tr>
                                             ))}
+                                            {filteredTickets.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={9} className="p-0">
+                                                        <div className="p-8 lg:p-16">
+                                                            <EmptyState
+                                                                icon={Ticket}
+                                                                title="No tickets found"
+                                                                description={searchQuery ? "Try adjusting your search filters" : "Create your first ticket to get started!"}
+                                                                actionLabel={!searchQuery ? "Create Ticket" : undefined}
+                                                                onAction={!searchQuery ? () => setShowNewTicketModal(true) : undefined}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
-                                    {filteredTickets.length === 0 && (
-                                        <tr>
-                                            <td colSpan={9} className="p-0">
-                                                <div className="p-8 lg:p-16">
-                                                    <EmptyState
-                                                        icon={Ticket}
-                                                        title="No tickets found"
-                                                        description={searchQuery ? "Try adjusting your search filters" : "Create your first ticket to get started!"}
-                                                        actionLabel={!searchQuery ? "Create Ticket" : undefined}
-                                                        onAction={!searchQuery ? () => setShowNewTicketModal(true) : undefined}
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </div>
                             </CardContent>
                         </Card>
@@ -575,6 +652,7 @@ export default function TicketsPage() {
                                 onClick={() => {
                                     setShowAddNoteModal(false);
                                     setNoteText("");
+                                    setPinToTasks(false);
                                     setSelectedTicketForNote(null);
                                 }}
                             >
@@ -592,17 +670,31 @@ export default function TicketsPage() {
                                     autoFocus
                                 />
                             </div>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="publicNoteModal"
-                                    checked={isPublicNote}
-                                    onChange={(e) => setIsPublicNote(e.target.checked)}
-                                    className="rounded"
-                                />
-                                <label htmlFor="publicNoteModal" className="text-sm">
-                                    Send to client (visible in WhatsApp)
-                                </label>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="publicNoteModal"
+                                        checked={isPublicNote}
+                                        onChange={(e) => setIsPublicNote(e.target.checked)}
+                                        className="rounded"
+                                    />
+                                    <label htmlFor="publicNoteModal" className="text-sm">
+                                        Send to client (visible in WhatsApp)
+                                    </label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="pinToTasksModal"
+                                        checked={pinToTasks}
+                                        onChange={(e) => setPinToTasks(e.target.checked)}
+                                        className="rounded"
+                                    />
+                                    <label htmlFor="pinToTasksModal" className="text-sm">
+                                        Pin to Tasks
+                                    </label>
+                                </div>
                             </div>
                             <div className="flex justify-end gap-3 pt-4 border-t">
                                 <Button 
@@ -610,6 +702,7 @@ export default function TicketsPage() {
                                     onClick={() => {
                                         setShowAddNoteModal(false);
                                         setNoteText("");
+                                        setPinToTasks(false);
                                         setSelectedTicketForNote(null);
                                     }}
                                     disabled={addingNote}
