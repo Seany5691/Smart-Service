@@ -112,23 +112,23 @@ export default function InventoryPage() {
     return (
         <div className="space-y-6">
             {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 via-red-600 to-pink-600 p-8 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 via-red-600 to-pink-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
-                <div className="relative flex items-center justify-between">
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <Package className="h-6 w-6" />
+                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                                <Package className="h-5 w-5 sm:h-6 sm:w-6" />
                             </div>
-                            <h1 className="text-4xl font-bold">Inventory</h1>
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Inventory</h1>
                         </div>
-                        <p className="text-orange-100 mt-2">
+                        <p className="text-orange-100 mt-2 text-sm sm:text-base">
                             Manage hardware stock and equipment
                         </p>
                     </div>
                     <Button 
                         size="lg"
-                        className="gap-2 bg-white text-orange-600 hover:bg-orange-50 shadow-lg"
+                        className="gap-2 bg-white text-orange-600 hover:bg-orange-50 shadow-lg w-full sm:w-auto min-h-[44px]"
                         onClick={() => setIsAddModalOpen(true)}
                     >
                         <Plus className="h-5 w-5" />
@@ -138,18 +138,18 @@ export default function InventoryPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-6 md:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 {statsCards.map((stat) => (
                     <Card key={stat.name} className="relative overflow-hidden border-0 shadow-lg">
                         <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5`}></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground">{stat.name}</p>
-                                    <div className="text-4xl font-bold mt-2">{stat.value}</div>
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">{stat.name}</p>
+                                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{stat.value}</div>
                                 </div>
-                                <div className={`rounded-2xl p-4 ${stat.iconBg}`}>
-                                    <stat.icon className={`h-8 w-8 ${stat.iconColor}`} />
+                                <div className={`rounded-2xl p-3 sm:p-4 ${stat.iconBg}`}>
+                                    <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.iconColor}`} />
                                 </div>
                             </div>
                         </CardContent>
@@ -159,14 +159,14 @@ export default function InventoryPage() {
 
             {/* Search */}
             <Card className="shadow-lg border-0">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search inventory by name or category..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 border-0 bg-accent/50 focus-visible:ring-2"
+                            className="pl-9 border-0 bg-accent/50 focus-visible:ring-2 h-11 text-base"
                         />
                     </div>
                 </CardContent>
@@ -174,11 +174,12 @@ export default function InventoryPage() {
 
             {/* Inventory Table */}
             <Card className="shadow-lg border-0">
-                <CardHeader className="border-b bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
-                    <CardTitle>Inventory Items</CardTitle>
+                <CardHeader className="border-b bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Inventory Items</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full">
                             <thead className="border-b bg-muted/50">
                                 <tr>
@@ -235,13 +236,63 @@ export default function InventoryPage() {
                                 ))}
                             </tbody>
                         </table>
-                        {filteredItems.length === 0 && (
-                            <div className="p-16 text-center">
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden">
+                        {filteredItems.length === 0 ? (
+                            <div className="p-8 sm:p-16 text-center">
                                 <Package className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
                                 <h3 className="text-lg font-semibold mb-2">No items found</h3>
-                                <p className="text-muted-foreground">
+                                <p className="text-muted-foreground text-sm">
                                     {searchQuery ? "Try adjusting your search" : "Add your first inventory item"}
                                 </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3 p-4">
+                                {filteredItems.map((item) => (
+                                    <Card key={item.id} className="border shadow-sm active:bg-accent/50 transition-colors">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex-1">
+                                                    <h3 className="font-semibold text-base mb-1">{item.name}</h3>
+                                                    <p className="text-sm text-muted-foreground">{item.category}</p>
+                                                </div>
+                                                <Badge variant={
+                                                    item.status === "in-stock" ? "success" : 
+                                                    item.status === "low-stock" ? "warning" : 
+                                                    "destructive"
+                                                }>
+                                                    {item.status === "in-stock" ? "In Stock" : 
+                                                     item.status === "low-stock" ? "Low Stock" : 
+                                                     "Out of Stock"}
+                                                </Badge>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <p className="text-muted-foreground text-xs">Quantity</p>
+                                                    <p className={`font-semibold ${
+                                                        item.status === "low-stock" ? "text-amber-600" : 
+                                                        item.status === "out-of-stock" ? "text-red-600" : ""
+                                                    }`}>
+                                                        {item.quantity}
+                                                        {item.status === "low-stock" && (
+                                                            <AlertTriangle className="inline h-3 w-3 ml-1" />
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground text-xs">Unit Price</p>
+                                                    <p className="font-semibold">{formatCurrency(item.unitPrice || 0)}</p>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-muted-foreground text-xs">Location</p>
+                                                    <p className="font-medium">{item.location}</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                             </div>
                         )}
                     </div>

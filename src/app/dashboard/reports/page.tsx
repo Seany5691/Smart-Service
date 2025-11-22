@@ -220,33 +220,33 @@ export default function ReportsPage() {
         <>
             <div className="space-y-6">
                 {/* Header with Gradient */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-600 p-8 text-white shadow-2xl">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                     <div className="absolute inset-0 bg-grid-white/10"></div>
                     <div className="relative">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <FileText className="h-6 w-6" />
+                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                                <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
                             </div>
-                            <h1 className="text-4xl font-bold">Reports</h1>
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Reports</h1>
                         </div>
-                        <p className="text-cyan-100 mt-2">
+                        <p className="text-cyan-100 mt-2 text-sm sm:text-base">
                             Generate and download business reports
                         </p>
                     </div>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="grid gap-6 md:grid-cols-4">
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                     <Card className="relative overflow-hidden border-0 shadow-lg">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-5 pointer-events-none"></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Available Reports</p>
-                                    <div className="text-4xl font-bold mt-2">{reports.length}</div>
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Available Reports</p>
+                                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{reports.length}</div>
                                 </div>
-                                <div className="rounded-2xl p-4 bg-blue-500/10">
-                                    <FileText className="h-8 w-8 text-blue-600" />
+                                <div className="rounded-2xl p-3 sm:p-4 bg-blue-500/10">
+                                    <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                                 </div>
                             </div>
                         </CardContent>
@@ -254,16 +254,16 @@ export default function ReportsPage() {
 
                     <Card className="relative overflow-hidden border-0 shadow-lg">
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-5 pointer-events-none"></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Recent Downloads</p>
-                                    <div className="text-4xl font-bold mt-2">
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Recent Downloads</p>
+                                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">
                                         {loadingDownloads ? "..." : recentDownloads.length}
                                     </div>
                                 </div>
-                                <div className="rounded-2xl p-4 bg-emerald-500/10">
-                                    <Download className="h-8 w-8 text-emerald-600" />
+                                <div className="rounded-2xl p-3 sm:p-4 bg-emerald-500/10">
+                                    <Download className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-600" />
                                 </div>
                             </div>
                         </CardContent>
@@ -271,14 +271,14 @@ export default function ReportsPage() {
 
                     <Card className="relative overflow-hidden border-0 shadow-lg">
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 opacity-5 pointer-events-none"></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Report Types</p>
-                                    <div className="text-4xl font-bold mt-2">4</div>
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Report Types</p>
+                                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">4</div>
                                 </div>
-                                <div className="rounded-2xl p-4 bg-purple-500/10">
-                                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                                <div className="rounded-2xl p-3 sm:p-4 bg-purple-500/10">
+                                    <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
                                 </div>
                             </div>
                         </CardContent>
@@ -286,14 +286,14 @@ export default function ReportsPage() {
 
                     <Card className="relative overflow-hidden border-0 shadow-lg">
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-5 pointer-events-none"></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Current Month</p>
-                                    <div className="text-2xl font-bold mt-2">{format(new Date(), 'MMM yyyy')}</div>
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Current Month</p>
+                                    <div className="text-lg sm:text-xl lg:text-2xl font-bold mt-2">{format(new Date(), 'MMM yyyy')}</div>
                                 </div>
-                                <div className="rounded-2xl p-4 bg-amber-500/10">
-                                    <Calendar className="h-8 w-8 text-amber-600" />
+                                <div className="rounded-2xl p-3 sm:p-4 bg-amber-500/10">
+                                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
                                 </div>
                             </div>
                         </CardContent>
@@ -302,30 +302,30 @@ export default function ReportsPage() {
 
                 {/* Available Reports */}
                 <Card className="shadow-lg border-0">
-                    <CardHeader className="border-b bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20">
-                        <CardTitle>Available Reports</CardTitle>
+                    <CardHeader className="border-b bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 p-4 sm:p-6">
+                        <CardTitle className="text-base sm:text-lg">Available Reports</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="grid gap-6 md:grid-cols-2">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
                             {reports.map((report) => (
-                                <Card key={report.id} className="group hover:shadow-xl transition-all border-0 shadow-md overflow-hidden">
+                                <Card key={report.id} className="group hover:shadow-xl transition-all border-0 shadow-md overflow-hidden active:bg-accent/50">
                                     <div className={`absolute inset-0 bg-gradient-to-br ${report.gradient} opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none`}></div>
-                                    <CardContent className="relative p-6">
-                                        <div className="flex items-start gap-4">
-                                            <div className={`rounded-xl p-3 bg-gradient-to-br ${report.gradient} shadow-lg`}>
-                                                <report.icon className="h-6 w-6 text-white" />
+                                    <CardContent className="relative p-4 sm:p-6">
+                                        <div className="flex items-start gap-3 sm:gap-4">
+                                            <div className={`rounded-xl p-2.5 sm:p-3 bg-gradient-to-br ${report.gradient} shadow-lg flex-shrink-0`}>
+                                                <report.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-lg mb-1">{report.name}</h3>
-                                                <p className="text-sm text-muted-foreground mb-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-base sm:text-lg mb-1">{report.name}</h3>
+                                                <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                                                     {report.description}
                                                 </p>
-                                                <div className="flex items-center justify-between">
-                                                    <Badge variant="outline">{report.type}</Badge>
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                                    <Badge variant="outline" className="text-xs">{report.type}</Badge>
                                                     <Button 
                                                         size="sm" 
                                                         variant="outline" 
-                                                        className="gap-2"
+                                                        className="gap-2 w-full sm:w-auto min-h-[44px]"
                                                         onClick={() => handleGenerateReport(report.id)}
                                                         disabled={generatingReport === report.id}
                                                     >
@@ -353,10 +353,10 @@ export default function ReportsPage() {
 
                 {/* Recent Downloads */}
                 <Card className="shadow-lg border-0">
-                    <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                        <CardTitle>Recent Downloads</CardTitle>
+                    <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 p-4 sm:p-6">
+                        <CardTitle className="text-base sm:text-lg">Recent Downloads</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         {loadingDownloads ? (
                             <div className="flex items-center justify-center py-8">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -377,13 +377,13 @@ export default function ReportsPage() {
                                         new Date(download.downloadedAt);
 
                                     return (
-                                        <div key={download.id} className="flex items-center justify-between p-4 rounded-xl border hover:bg-accent/50 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                                        <div key={download.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border hover:bg-accent/50 active:bg-accent/50 transition-colors">
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
                                                     <Icon className="h-5 w-5 text-blue-600" />
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium">{download.reportName}</p>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="font-medium text-sm sm:text-base truncate">{download.reportName}</p>
                                                     <p className="text-xs text-muted-foreground">
                                                         Downloaded on {format(downloadDate, 'MMM dd, yyyy')}
                                                     </p>
@@ -392,7 +392,7 @@ export default function ReportsPage() {
                                             <Button 
                                                 variant="ghost" 
                                                 size="sm" 
-                                                className="gap-2"
+                                                className="gap-2 w-full sm:w-auto min-h-[44px]"
                                                 onClick={() => handleDownloadAgain(download)}
                                                 disabled={generatingReport === download.reportId}
                                             >
@@ -401,7 +401,7 @@ export default function ReportsPage() {
                                                 ) : (
                                                     <Download className="h-4 w-4" />
                                                 )}
-                                                Download Again
+                                                <span className="sm:inline">Download Again</span>
                                             </Button>
                                         </div>
                                     );

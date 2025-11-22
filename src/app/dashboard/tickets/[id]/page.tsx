@@ -303,97 +303,103 @@ export default function TicketDetailPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl">
+        <div className="space-y-4 lg:space-y-6">
+            {/* Header with Gradient - Mobile Optimized */}
+            <div className="relative overflow-hidden rounded-xl lg:rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
                 <div className="relative">
+                    {/* Mobile: Prominent back button */}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => router.push("/dashboard/tickets")}
-                        className="mb-4 text-white hover:bg-white/20"
+                        className="mb-3 lg:mb-4 text-white hover:bg-white/20 h-11 w-11 lg:h-10 lg:w-10"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div className="flex items-center justify-between">
+                    {/* Mobile: Stack content vertically, Desktop: Side by side */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2 flex-wrap">
-                                <h1 className="text-4xl font-bold font-mono">{ticket.ticketId}</h1>
+                            <div className="flex items-center gap-2 lg:gap-3 mb-2 flex-wrap">
+                                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-mono">{ticket.ticketId}</h1>
                                 <Badge 
                                     variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}
-                                    className="bg-white/20 border-white/30 text-white shadow-lg"
+                                    className="bg-white/20 border-white/30 text-white shadow-lg text-xs lg:text-sm"
                                 >
                                     {ticket.priority}
                                 </Badge>
                                 <Badge 
                                     variant={statusColors[ticket.status as keyof typeof statusColors] as any}
-                                    className="bg-white/20 border-white/30 text-white shadow-lg"
+                                    className="bg-white/20 border-white/30 text-white shadow-lg text-xs lg:text-sm"
                                 >
                                     {ticket.status}
                                 </Badge>
                                 {ticket.isClosed && (
-                                    <Badge className="bg-red-500/80 border-red-300 text-white shadow-lg">
+                                    <Badge className="bg-red-500/80 border-red-300 text-white shadow-lg text-xs lg:text-sm">
                                         CLOSED
                                     </Badge>
                                 )}
                             </div>
-                            <p className="text-purple-100 text-lg">{ticket.title}</p>
+                            <p className="text-purple-100 text-base lg:text-lg">{ticket.title}</p>
                             <p className="text-purple-200 text-sm mt-2">
                                 {ticket.customer || ticket.companyName} • {ticket.category}
                             </p>
                             
-                            {/* Time Tracking */}
-                            <div className="mt-4 flex gap-4 text-sm">
+                            {/* Time Tracking - Mobile: Stack vertically */}
+                            <div className="mt-3 lg:mt-4 flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm">
                                 {ticket.isClosed ? (
                                     <>
-                                        <div className="bg-white/10 px-3 py-1 rounded">
+                                        <div className="bg-white/10 px-3 py-1.5 rounded">
                                             <span className="text-purple-200">Completed in: </span>
                                             <span className="font-semibold">{calculateDuration(ticket.createdAt, ticket.closedAt)}</span>
                                         </div>
-                                        <div className="bg-white/10 px-3 py-1 rounded">
+                                        <div className="bg-white/10 px-3 py-1.5 rounded">
                                             <span className="text-purple-200">Closed: </span>
                                             <span className="font-semibold">{calculateDuration(ticket.closedAt)} ago</span>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="bg-white/10 px-3 py-1 rounded">
+                                    <div className="bg-white/10 px-3 py-1.5 rounded">
                                         <span className="text-purple-200">Open for: </span>
                                         <span className="font-semibold">{calculateDuration(ticket.createdAt)}</span>
                                     </div>
                                 )}
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        {/* Mobile: Full width button, Desktop: Normal */}
+                        <div className="flex gap-2 w-full lg:w-auto">
                             <Button 
                                 variant="ghost" 
-                                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 flex-1 lg:flex-none h-11 lg:h-10"
                                 onClick={() => window.print()}
                             >
                                 <Download className="h-4 w-4" />
-                                Print Report
+                                <span className="hidden sm:inline">Print Report</span>
+                                <span className="sm:hidden">Print</span>
                             </Button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            {/* Mobile: Single column, Desktop: 2/3 + 1/3 layout */}
+            <div className="grid gap-4 lg:gap-6 lg:grid-cols-3">
                 {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-4 lg:space-y-6">
                     {/* Progress Status & Actions */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Progress Status</CardTitle>
+                        <CardHeader className="p-4 lg:p-6">
+                            <CardTitle className="text-base lg:text-lg">Progress Status</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 p-4 lg:p-6 pt-0 lg:pt-0">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Current Progress</label>
+                                {/* Mobile: Larger touch target */}
                                 <select
                                     value={ticket.progressStatus || 'Not Started'}
                                     onChange={(e) => handleProgressChange(e.target.value)}
                                     disabled={ticket.isClosed}
-                                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring disabled:opacity-50"
+                                    className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring disabled:opacity-50"
                                 >
                                     <option value="Not Started">Not Started</option>
                                     <option value="In Progress">In Progress</option>
@@ -402,11 +408,12 @@ export default function TicketDetailPage() {
                                 </select>
                             </div>
                             
+                            {/* Mobile: Full width button with proper touch target */}
                             <div className="pt-4 border-t flex gap-2">
                                 {ticket.isClosed ? (
                                     <Button 
                                         onClick={() => setShowReopenModal(true)}
-                                        className="w-full"
+                                        className="w-full h-11 lg:h-10"
                                         variant="outline"
                                     >
                                         Reopen Ticket
@@ -414,7 +421,7 @@ export default function TicketDetailPage() {
                                 ) : (
                                     <Button 
                                         onClick={() => setShowCloseModal(true)}
-                                        className="w-full"
+                                        className="w-full h-11 lg:h-10"
                                         variant="destructive"
                                     >
                                         Close Ticket
@@ -446,38 +453,39 @@ export default function TicketDetailPage() {
 
                     {/* Ticket Details */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Ticket Details</CardTitle>
+                        <CardHeader className="p-4 lg:p-6">
+                            <CardTitle className="text-base lg:text-lg">Ticket Details</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 p-4 lg:p-6 pt-0 lg:pt-0">
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Description</label>
-                                <p className="mt-1">{ticket.description}</p>
+                                <p className="mt-1 text-sm lg:text-base">{ticket.description}</p>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Mobile: Single column, Desktop: 2 columns */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Customer</label>
-                                    <p className="mt-1">{ticket.customer || ticket.companyName}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.customer || ticket.companyName}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Category</label>
-                                    <p className="mt-1 capitalize">{ticket.category}</p>
+                                    <p className="mt-1 capitalize text-sm lg:text-base">{ticket.category}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Subcategory</label>
-                                    <p className="mt-1">{ticket.subcategory || "N/A"}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.subcategory || "N/A"}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Assignee</label>
-                                    <p className="mt-1">{ticket.assignee}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.assignee}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">SLA</label>
-                                    <p className="mt-1">{ticket.slaHours ? `${ticket.slaHours} Hours` : "N/A"}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.slaHours ? `${ticket.slaHours} Hours` : "N/A"}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Created By</label>
-                                    <p className="mt-1">{ticket.createdBy}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.createdBy}</p>
                                 </div>
                             </div>
                             {ticket.pbxLink && (
@@ -487,7 +495,7 @@ export default function TicketDetailPage() {
                                         href={ticket.pbxLink} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="mt-2 flex items-center gap-2 text-primary hover:underline"
+                                        className="mt-2 flex items-center gap-2 text-primary hover:underline active:text-primary/80 min-h-[44px] py-2"
                                     >
                                         <Upload className="h-4 w-4" />
                                         Access PBX System
@@ -499,45 +507,52 @@ export default function TicketDetailPage() {
 
                     {/* Add Note */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Add Note</CardTitle>
+                        <CardHeader className="p-4 lg:p-6">
+                            <CardTitle className="text-base lg:text-lg">Add Note</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 p-4 lg:p-6 pt-0 lg:pt-0">
+                            {/* Mobile: Larger text area with better touch target */}
                             <textarea
                                 value={newNote}
                                 onChange={(e) => setNewNote(e.target.value)}
                                 placeholder="Enter your note here..."
-                                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             />
                             <div className="space-y-3">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
+                                {/* Mobile: Stack checkboxes vertically */}
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                                    <div className="flex items-center gap-2 min-h-[44px]">
                                         <input
                                             type="checkbox"
                                             id="publicNote"
                                             checked={isPublicNote}
                                             onChange={(e) => setIsPublicNote(e.target.checked)}
-                                            className="rounded"
+                                            className="rounded h-5 w-5 lg:h-4 lg:w-4"
                                         />
-                                        <label htmlFor="publicNote" className="text-sm">
+                                        <label htmlFor="publicNote" className="text-sm lg:text-sm cursor-pointer">
                                             Send to client (visible in WhatsApp)
                                         </label>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 min-h-[44px]">
                                         <input
                                             type="checkbox"
                                             id="pinToTasks"
                                             checked={pinToTasks}
                                             onChange={(e) => setPinToTasks(e.target.checked)}
-                                            className="rounded"
+                                            className="rounded h-5 w-5 lg:h-4 lg:w-4"
                                         />
-                                        <label htmlFor="pinToTasks" className="text-sm">
+                                        <label htmlFor="pinToTasks" className="text-sm lg:text-sm cursor-pointer">
                                             Pin to Tasks
                                         </label>
                                     </div>
                                 </div>
+                                {/* Mobile: Full width button */}
                                 <div className="flex justify-end">
-                                    <Button onClick={handleAddNote} disabled={addingNote}>
+                                    <Button 
+                                        onClick={handleAddNote} 
+                                        disabled={addingNote}
+                                        className="w-full sm:w-auto h-11 lg:h-10"
+                                    >
                                         {addingNote ? "Adding..." : "Add Note"}
                                     </Button>
                                 </div>
@@ -545,17 +560,18 @@ export default function TicketDetailPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Timeline */}
+                    {/* Timeline - Mobile Optimized */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Activity Timeline</CardTitle>
+                        <CardHeader className="p-4 lg:p-6">
+                            <CardTitle className="text-base lg:text-lg">Activity Timeline</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
+                        <CardContent className="p-4 lg:p-6 pt-0 lg:pt-0">
+                            <div className="space-y-3 lg:space-y-4">
                                 {timeline.map((entry, index) => (
-                                    <div key={entry.id || index} className="flex gap-4">
+                                    <div key={entry.id || index} className="flex gap-3 lg:gap-4">
+                                        {/* Mobile: Smaller icon, reduced padding */}
                                         <div className="flex flex-col items-center">
-                                            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                            <div className={`flex h-8 w-8 lg:h-8 lg:w-8 items-center justify-center rounded-full ${
                                                 entry.type === 'ticket_closed' ? 'bg-red-100 text-red-600' :
                                                 entry.type === 'ticket_reopened' ? 'bg-green-100 text-green-600' :
                                                 entry.isPublic ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
@@ -566,17 +582,17 @@ export default function TicketDetailPage() {
                                                 <div className="w-px flex-1 bg-border mt-2" style={{ minHeight: '20px' }} />
                                             )}
                                         </div>
-                                        <div className="flex-1 pb-4">
+                                        <div className="flex-1 pb-3 lg:pb-4">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
-                                                    <p className="font-medium">{entry.action}</p>
+                                                    <p className="font-medium text-sm lg:text-base">{entry.action}</p>
                                                     <p className="text-sm text-muted-foreground mt-1">
                                                         {entry.description}
                                                     </p>
                                                     
                                                     {/* Show work done for closed tickets */}
                                                     {entry.type === 'ticket_closed' && entry.metadata?.workDone && (
-                                                        <div className="mt-2 p-3 bg-accent/50 rounded border">
+                                                        <div className="mt-2 p-2 lg:p-3 bg-accent/50 rounded border">
                                                             <p className="text-xs font-medium text-muted-foreground mb-1">Work Done:</p>
                                                             <p className="text-sm">{entry.metadata.workDone}</p>
                                                         </div>
@@ -584,21 +600,26 @@ export default function TicketDetailPage() {
                                                     
                                                     {/* Show reason for reopened tickets */}
                                                     {entry.type === 'ticket_reopened' && entry.metadata?.reason && (
-                                                        <div className="mt-2 p-3 bg-accent/50 rounded border">
+                                                        <div className="mt-2 p-2 lg:p-3 bg-accent/50 rounded border">
                                                             <p className="text-xs font-medium text-muted-foreground mb-1">Reason:</p>
                                                             <p className="text-sm">{entry.metadata.reason}</p>
                                                         </div>
                                                     )}
                                                     
-                                                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                                                        <User className="h-3 w-3" />
-                                                        <span>{entry.userName}</span>
-                                                        <span>•</span>
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{formatTimestamp(entry.createdAt)}</span>
+                                                    {/* Mobile: Stack metadata vertically on very small screens */}
+                                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-muted-foreground">
+                                                        <div className="flex items-center gap-1">
+                                                            <User className="h-3 w-3" />
+                                                            <span>{entry.userName}</span>
+                                                        </div>
+                                                        <span className="hidden sm:inline">•</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <Clock className="h-3 w-3" />
+                                                            <span>{formatTimestamp(entry.createdAt)}</span>
+                                                        </div>
                                                         {!entry.isPublic && (
                                                             <>
-                                                                <span>•</span>
+                                                                <span className="hidden sm:inline">•</span>
                                                                 <Badge variant="outline" className="text-xs">Internal</Badge>
                                                             </>
                                                         )}
@@ -617,16 +638,16 @@ export default function TicketDetailPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Customer Hardware - Collapsible Card at Bottom */}
+                    {/* Customer Hardware - Collapsible Card at Bottom - Mobile Optimized */}
                     {ticket.hardware && ticket.hardware.length > 0 && (
                         <Card>
                             <CardContent className="p-0">
                                 <details className="group">
-                                    <summary className="flex items-center justify-between cursor-pointer list-none p-6 hover:bg-accent/50 transition-colors">
+                                    <summary className="flex items-center justify-between cursor-pointer list-none p-4 lg:p-6 hover:bg-accent/50 active:bg-accent transition-colors min-h-[56px]">
                                         <div className="flex items-center gap-2">
                                             <Package className="h-5 w-5 text-muted-foreground" />
-                                            <span className="font-semibold">Customer Hardware</span>
-                                            <Badge variant="outline">{ticket.hardware.length} items</Badge>
+                                            <span className="font-semibold text-sm lg:text-base">Customer Hardware</span>
+                                            <Badge variant="outline" className="text-xs">{ticket.hardware.length} items</Badge>
                                         </div>
                                         <svg
                                             className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180"
@@ -637,8 +658,9 @@ export default function TicketDetailPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </summary>
-                                    <div className="px-6 pb-6 pt-2">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="px-4 lg:px-6 pb-4 lg:pb-6 pt-2">
+                                        {/* Mobile: Single column, Desktop: 2 columns */}
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                                             {ticket.hardware.map((item: any, index: number) => (
                                                 <div key={index} className="p-3 bg-accent/50 rounded border space-y-1">
                                                     <p className="font-medium text-sm">{item.label}</p>
@@ -664,31 +686,32 @@ export default function TicketDetailPage() {
                     )}
                 </div>
 
-                {/* Sidebar */}
-                <div className="space-y-6">
+                {/* Sidebar - Mobile Optimized */}
+                <div className="space-y-4 lg:space-y-6">
                     {/* Quick Actions */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Quick Actions</CardTitle>
+                        <CardHeader className="p-4 lg:p-6">
+                            <CardTitle className="text-base lg:text-lg">Quick Actions</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-2">
+                        <CardContent className="space-y-2 p-4 lg:p-6 pt-0 lg:pt-0">
+                            {/* Mobile: Larger touch targets (44px min) */}
                             <Button 
                                 variant="outline" 
-                                className="w-full justify-start gap-2"
+                                className="w-full justify-start gap-2 h-11 lg:h-10"
                                 onClick={() => setShowAddTaskModal(true)}
                             >
                                 <CheckSquare className="h-4 w-4" />
                                 Add Task
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2">
+                            <Button variant="outline" className="w-full justify-start gap-2 h-11 lg:h-10">
                                 <Upload className="h-4 w-4" />
                                 Upload Files
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2">
+                            <Button variant="outline" className="w-full justify-start gap-2 h-11 lg:h-10">
                                 <MessageSquare className="h-4 w-4" />
                                 Send WhatsApp
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2">
+                            <Button variant="outline" className="w-full justify-start gap-2 h-11 lg:h-10">
                                 <Clock className="h-4 w-4" />
                                 Log Time
                             </Button>
@@ -698,17 +721,17 @@ export default function TicketDetailPage() {
                     {/* Contact Info */}
                     {ticket.contactName && (
                         <Card>
-                            <CardHeader>
-                                <CardTitle>Contact Information</CardTitle>
+                            <CardHeader className="p-4 lg:p-6">
+                                <CardTitle className="text-base lg:text-lg">Contact Information</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-2">
+                            <CardContent className="space-y-2 p-4 lg:p-6 pt-0 lg:pt-0">
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Name</label>
-                                    <p className="mt-1">{ticket.contactName}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.contactName}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Email</label>
-                                    <p className="mt-1">{ticket.contactEmail}</p>
+                                    <p className="mt-1 text-sm lg:text-base">{ticket.contactEmail}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -716,27 +739,32 @@ export default function TicketDetailPage() {
                 </div>
             </div>
 
-            {/* Close Ticket Modal */}
+            {/* Close Ticket Modal - Mobile Optimized */}
             {showCloseModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md m-4">
-                        <div className="flex items-center justify-between border-b p-6">
-                            <h2 className="text-xl font-bold">Close Ticket</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setShowCloseModal(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md">
+                        <div className="flex items-center justify-between border-b p-4 lg:p-6">
+                            <h2 className="text-lg lg:text-xl font-bold">Close Ticket</h2>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowCloseModal(false)}
+                                className="h-11 w-11 lg:h-10 lg:w-10"
+                            >
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
-                        <div className="p-6 space-y-4">
+                        <div className="p-4 lg:p-6 space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Work Done *</label>
                                 <textarea
                                     value={workDone}
                                     onChange={(e) => setWorkDone(e.target.value)}
                                     placeholder="Describe the work that was completed..."
-                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                                 />
                             </div>
-                            <div className="flex justify-end gap-3 pt-4 border-t">
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
                                 <Button 
                                     variant="outline" 
                                     onClick={() => {
@@ -744,6 +772,7 @@ export default function TicketDetailPage() {
                                         setWorkDone("");
                                     }}
                                     disabled={processingAction}
+                                    className="h-11 lg:h-10 w-full sm:w-auto"
                                 >
                                     Cancel
                                 </Button>
@@ -751,6 +780,7 @@ export default function TicketDetailPage() {
                                     onClick={handleCloseTicket}
                                     disabled={processingAction || !workDone.trim()}
                                     variant="destructive"
+                                    className="h-11 lg:h-10 w-full sm:w-auto"
                                 >
                                     {processingAction ? "Closing..." : "Close Ticket"}
                                 </Button>
@@ -760,27 +790,32 @@ export default function TicketDetailPage() {
                 </div>
             )}
 
-            {/* Reopen Ticket Modal */}
+            {/* Reopen Ticket Modal - Mobile Optimized */}
             {showReopenModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md m-4">
-                        <div className="flex items-center justify-between border-b p-6">
-                            <h2 className="text-xl font-bold">Reopen Ticket</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setShowReopenModal(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-card rounded-lg shadow-lg w-full max-w-md">
+                        <div className="flex items-center justify-between border-b p-4 lg:p-6">
+                            <h2 className="text-lg lg:text-xl font-bold">Reopen Ticket</h2>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowReopenModal(false)}
+                                className="h-11 w-11 lg:h-10 lg:w-10"
+                            >
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
-                        <div className="p-6 space-y-4">
+                        <div className="p-4 lg:p-6 space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Reason for Reopening *</label>
                                 <textarea
                                     value={reopenReason}
                                     onChange={(e) => setReopenReason(e.target.value)}
                                     placeholder="Explain why this ticket needs to be reopened..."
-                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                    className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                                 />
                             </div>
-                            <div className="flex justify-end gap-3 pt-4 border-t">
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
                                 <Button 
                                     variant="outline" 
                                     onClick={() => {
@@ -788,12 +823,14 @@ export default function TicketDetailPage() {
                                         setReopenReason("");
                                     }}
                                     disabled={processingAction}
+                                    className="h-11 lg:h-10 w-full sm:w-auto"
                                 >
                                     Cancel
                                 </Button>
                                 <Button 
                                     onClick={handleReopenTicket}
                                     disabled={processingAction || !reopenReason.trim()}
+                                    className="h-11 lg:h-10 w-full sm:w-auto"
                                 >
                                     {processingAction ? "Reopening..." : "Reopen Ticket"}
                                 </Button>

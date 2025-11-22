@@ -114,24 +114,24 @@ export default function BillingPage() {
             />
 
             {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 p-8 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
                 <div className="relative">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <div className="flex items-center gap-3 mb-2">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                    <DollarSign className="h-6 w-6" />
+                                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                                    <DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </div>
-                                <h1 className="text-4xl font-bold">Billing</h1>
+                                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Billing</h1>
                             </div>
-                            <p className="text-emerald-100 mt-2">
+                            <p className="text-emerald-100 mt-2 text-sm sm:text-base">
                                 Manage invoices, payments, and subscriptions
                             </p>
                         </div>
                         <Button
                             onClick={() => setIsAddModalOpen(true)}
-                            className="bg-white text-green-600 hover:bg-white/90 gap-2"
+                            className="bg-white text-green-600 hover:bg-white/90 gap-2 w-full sm:w-auto min-h-[44px]"
                         >
                             <Plus className="h-4 w-4" />
                             Create Invoice
@@ -141,17 +141,17 @@ export default function BillingPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-6 md:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
+                    <CardContent className="relative p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-                                <div className="text-4xl font-bold mt-2">{formatCurrency(monthlyRevenue)}</div>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Monthly Revenue</p>
+                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{formatCurrency(monthlyRevenue)}</div>
                             </div>
-                            <div className="rounded-2xl p-4 bg-green-500/10">
-                                <DollarSign className="h-8 w-8 text-green-600" />
+                            <div className="rounded-2xl p-3 sm:p-4 bg-green-500/10">
+                                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -159,14 +159,14 @@ export default function BillingPage() {
 
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
+                    <CardContent className="relative p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Outstanding</p>
-                                <div className="text-4xl font-bold mt-2">{formatCurrency(outstandingAmount)}</div>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Outstanding</p>
+                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{formatCurrency(outstandingAmount)}</div>
                             </div>
-                            <div className="rounded-2xl p-4 bg-blue-500/10">
-                                <FileText className="h-8 w-8 text-blue-600" />
+                            <div className="rounded-2xl p-3 sm:p-4 bg-blue-500/10">
+                                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -174,14 +174,14 @@ export default function BillingPage() {
 
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
+                    <CardContent className="relative p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Invoices</p>
-                                <div className="text-4xl font-bold mt-2">{invoices.length}</div>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Invoices</p>
+                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{invoices.length}</div>
                             </div>
-                            <div className="rounded-2xl p-4 bg-purple-500/10">
-                                <FileText className="h-8 w-8 text-purple-600" />
+                            <div className="rounded-2xl p-3 sm:p-4 bg-purple-500/10">
+                                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -189,42 +189,44 @@ export default function BillingPage() {
 
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
+                    <CardContent className="relative p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Paid Invoices</p>
-                                <div className="text-4xl font-bold mt-2">
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Paid Invoices</p>
+                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">
                                     {invoices.filter(inv => inv.status === 'paid').length}
                                 </div>
                             </div>
-                            <div className="rounded-2xl p-4 bg-amber-500/10">
-                                <TrendingUp className="h-8 w-8 text-amber-600" />
+                            <div className="rounded-2xl p-3 sm:p-4 bg-amber-500/10">
+                                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
                 {/* Invoices */}
                 <div className="lg:col-span-2">
                     <Card className="shadow-lg border-0">
-                        <CardHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-                            <CardTitle>Recent Invoices</CardTitle>
+                        <CardHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4 sm:p-6">
+                            <CardTitle className="text-base sm:text-lg">Recent Invoices</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
                             {invoices.length === 0 ? (
-                                <div className="p-12 text-center">
+                                <div className="p-8 sm:p-12 text-center">
                                     <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                     <p className="text-muted-foreground mb-4">No invoices yet</p>
-                                    <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                                    <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 min-h-[44px]">
                                         <Plus className="h-4 w-4" />
                                         Create Your First Invoice
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                <>
+                                    {/* Desktop Table View */}
+                                    <div className="hidden md:block overflow-x-auto">
+                                        <table className="w-full">
                                         <thead className="border-b bg-muted/50">
                                             <tr>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold">Invoice ID</th>
@@ -269,18 +271,53 @@ export default function BillingPage() {
                                         </tbody>
                                     </table>
                                 </div>
+
+                                {/* Mobile Card View */}
+                                <div className="md:hidden space-y-3 p-4">
+                                    {invoices.map((invoice) => (
+                                        <Card key={invoice.id} className="border shadow-sm active:bg-accent/50 transition-colors">
+                                            <CardContent className="p-4">
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <div>
+                                                        <span className="font-mono text-sm font-semibold text-blue-600">
+                                                            {invoice.invoiceNumber}
+                                                        </span>
+                                                        <p className="text-sm text-muted-foreground mt-1">{invoice.customerName}</p>
+                                                    </div>
+                                                    <Badge variant={invoice.status === "paid" ? "success" : "warning"}>
+                                                        {invoice.status}
+                                                    </Badge>
+                                                </div>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-xs text-muted-foreground">{invoice.issueDate}</span>
+                                                    <span className="text-lg font-bold">{formatCurrency(invoice.amount)}</span>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full gap-2 min-h-[44px]"
+                                                    onClick={() => handleDownloadInvoice(invoice)}
+                                                >
+                                                    <Download className="h-4 w-4" />
+                                                    Download
+                                                </Button>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                                </>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Payment Method */}
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     <Card className="shadow-lg border-0">
-                        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                            <CardTitle>Payment Method</CardTitle>
+                        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 sm:p-6">
+                            <CardTitle className="text-base sm:text-lg">Payment Method</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 sm:p-6">
                             <div className="rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-6 text-white shadow-lg">
                                 <div className="flex items-center justify-between mb-4">
                                     <CreditCard className="h-8 w-8" />
@@ -296,17 +333,17 @@ export default function BillingPage() {
                                     </div>
                                 </div>
                             </div>
-                            <Button variant="outline" className="w-full mt-4">
+                            <Button variant="outline" className="w-full mt-4 min-h-[44px]">
                                 Update Payment Method
                             </Button>
                         </CardContent>
                     </Card>
 
                     <Card className="shadow-lg border-0">
-                        <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                            <CardTitle>Next Billing Date</CardTitle>
+                        <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 p-4 sm:p-6">
+                            <CardTitle className="text-base sm:text-lg">Next Billing Date</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 sm:p-6">
                             <div className="flex items-center gap-3 p-4 rounded-xl bg-accent/50">
                                 <Calendar className="h-8 w-8 text-purple-600" />
                                 <div>

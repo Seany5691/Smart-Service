@@ -16,6 +16,7 @@ import {
     Check,
     MessageSquare,
     X,
+    Ticket,
 } from "lucide-react";
 import Link from "next/link";
 import EnhancedTicketModal from "@/components/modals/EnhancedTicketModal";
@@ -23,6 +24,8 @@ import { ticketService } from "@/lib/firebase/services";
 import { timelineService } from "@/lib/firebase/timeline";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { LoadingState, SkeletonTable } from "@/components/LoadingState";
+import { EmptyState } from "@/components/EmptyState";
 
 type FilterOption = "my-open" | "all" | "unassigned" | "open" | "in-progress" | "resolved";
 
@@ -350,76 +353,74 @@ export default function TicketsPage() {
             </Card>
 
             {loading ? (
-                <Card>
-                    <CardContent className="p-12 text-center">
-                        <p className="text-muted-foreground">Loading tickets...</p>
-                    </CardContent>
-                </Card>
+                <SkeletonTable />
             ) : (
                 <>
                     {/* Kanban View */}
                     {viewMode === "kanban" && (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            {["open", "in-progress", "pending", "resolved"].map((status) => (
-                                <div key={status} className="space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="font-semibold capitalize">{status.replace("-", " ")}</h3>
-                                        <Badge variant="outline">{getTicketsByStatus(status).length}</Badge>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {getTicketsByStatus(status).map((ticket) => (
-                                            <Link key={ticket.id} href={`/dashboard/tickets/${ticket.id}`}>
-                                                <Card className="cursor-pointer transition-smooth hover:shadow-lg hover:scale-[1.02]">
-                                                    <CardContent className="p-4">
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-start justify-between gap-2">
-                                                                <span className="text-xs font-mono text-muted-foreground">
-                                                                    {ticket.ticketId}
-                                                                </span>
-                                                                <Badge variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}>
-                                                                    {ticket.priority}
-                                                                </Badge>
+                        <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-thin">
+                            <div className="flex gap-4 lg:grid lg:grid-cols-4 min-w-max lg:min-w-0">
+                                {["open", "in-progress", "pending", "resolved"].map((status) => (
+                                    <div key={status} className="space-y-3 w-[280px] lg:w-auto flex-shrink-0">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="font-semibold capitalize">{status.replace("-", " ")}</h3>
+                                            <Badge variant="outline">{getTicketsByStatus(status).length}</Badge>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {getTicketsByStatus(status).map((ticket) => (
+                                                <Link key={ticket.id} href={`/dashboard/tickets/${ticket.id}`}>
+                                                    <Card className="cursor-pointer transition-smooth hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+                                                        <CardContent className="p-4">
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-start justify-between gap-2">
+                                                                    <span className="text-xs font-mono text-muted-foreground">
+                                                                        {ticket.ticketId}
+                                                                    </span>
+                                                                    <Badge variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}>
+                                                                        {ticket.priority}
+                                                                    </Badge>
+                                                                </div>
+                                                                <h4 className="font-medium line-clamp-2">{ticket.title}</h4>
+                                                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                                                    {ticket.description}
+                                                                </p>
+                                                                {ticket.progressStatus && (
+                                                                    <Badge 
+                                                                        variant={
+                                                                            ticket.progressStatus === 'Completed' ? 'success' :
+                                                                            ticket.progressStatus === 'In Progress' ? 'warning' :
+                                                                            'outline'
+                                                                        }
+                                                                        className="text-xs"
+                                                                    >
+                                                                        {ticket.progressStatus}
+                                                                    </Badge>
+                                                                )}
+                                                                {ticket.isClosed && (
+                                                                    <Badge variant="destructive" className="text-xs">
+                                                                        CLOSED
+                                                                    </Badge>
+                                                                )}
+                                                                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                                                                    <span className="truncate">{ticket.customer}</span>
+                                                                    <span className="truncate ml-2">{ticket.assignee}</span>
+                                                                </div>
                                                             </div>
-                                                            <h4 className="font-medium line-clamp-2">{ticket.title}</h4>
-                                                            <p className="text-sm text-muted-foreground line-clamp-2">
-                                                                {ticket.description}
-                                                            </p>
-                                                            {ticket.progressStatus && (
-                                                                <Badge 
-                                                                    variant={
-                                                                        ticket.progressStatus === 'Completed' ? 'success' :
-                                                                        ticket.progressStatus === 'In Progress' ? 'warning' :
-                                                                        'outline'
-                                                                    }
-                                                                    className="text-xs"
-                                                                >
-                                                                    {ticket.progressStatus}
-                                                                </Badge>
-                                                            )}
-                                                            {ticket.isClosed && (
-                                                                <Badge variant="destructive" className="text-xs">
-                                                                    CLOSED
-                                                                </Badge>
-                                                            )}
-                                                            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-                                                                <span>{ticket.customer}</span>
-                                                                <span>{ticket.assignee}</span>
-                                                            </div>
-                                                        </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                            ))}
+                                            {getTicketsByStatus(status).length === 0 && (
+                                                <Card className="border-dashed">
+                                                    <CardContent className="p-6 lg:p-8 text-center text-sm text-muted-foreground">
+                                                        No {status.replace("-", " ")} tickets
                                                     </CardContent>
                                                 </Card>
-                                            </Link>
-                                        ))}
-                                        {getTicketsByStatus(status).length === 0 && (
-                                            <Card>
-                                                <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                                                    No tickets
-                                                </CardContent>
-                                            </Card>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -516,19 +517,19 @@ export default function TicketsPage() {
                                         </tbody>
                                     </table>
                                     {filteredTickets.length === 0 && (
-                                        <div className="p-16 text-center">
-                                            <Plus className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
-                                            <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
-                                            <p className="text-muted-foreground mb-6">
-                                                {searchQuery ? "Try adjusting your search" : "Create your first ticket to get started!"}
-                                            </p>
-                                            {!searchQuery && (
-                                                <Button onClick={() => setShowNewTicketModal(true)} className="gap-2">
-                                                    <Plus className="h-4 w-4" />
-                                                    Create Ticket
-                                                </Button>
-                                            )}
-                                        </div>
+                                        <tr>
+                                            <td colSpan={9} className="p-0">
+                                                <div className="p-8 lg:p-16">
+                                                    <EmptyState
+                                                        icon={Ticket}
+                                                        title="No tickets found"
+                                                        description={searchQuery ? "Try adjusting your search filters" : "Create your first ticket to get started!"}
+                                                        actionLabel={!searchQuery ? "Create Ticket" : undefined}
+                                                        onAction={!searchQuery ? () => setShowNewTicketModal(true) : undefined}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
                                     )}
                                 </div>
                             </CardContent>

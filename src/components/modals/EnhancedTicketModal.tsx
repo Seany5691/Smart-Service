@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Search, Check, ExternalLink } from "lucide-react";
+import { Search, Check, ExternalLink } from "lucide-react";
 import { ticketService, customerService } from "@/lib/firebase/services";
 import { settingsService } from "@/lib/firebase/settings";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import MobileModal from "@/components/MobileModal";
 
 interface EnhancedTicketModalProps {
     isOpen: boolean;
@@ -280,16 +280,34 @@ export default function EnhancedTicketModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-                <div className="flex items-center justify-between border-b p-6">
-                    <h2 className="text-2xl font-bold">Create New Ticket</h2>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Create New Ticket"
+            size="xl"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="flex-1 sm:flex-none h-12 lg:h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="ticket-form"
+                        disabled={loading}
+                        className="flex-1 sm:flex-none h-12 lg:h-10"
+                    >
+                        {loading ? "Creating..." : "Create Ticket"}
                     </Button>
                 </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            }
+        >
+            <form id="ticket-form" onSubmit={handleSubmit} className="space-y-6">
                     {/* Company Selection */}
                     <div className="space-y-2 relative">
                         <label className="text-sm font-medium">Company *</label>
@@ -307,7 +325,7 @@ export default function EnhancedTicketModal({
                                 }}
                                 onFocus={() => setShowCustomerList(true)}
                                 placeholder="Search for a company..."
-                                className="pl-9"
+                                className="pl-9 h-12 lg:h-10 text-base lg:text-sm"
                                 disabled={!!prefilledCompanyId}
                             />
                         </div>
@@ -387,7 +405,7 @@ export default function EnhancedTicketModal({
                             disabled={!formData.companyId || !!prefilledContactId}
                             value={formData.contactId}
                             onChange={(e) => handleSelectContact(e.target.value)}
-                            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring disabled:opacity-50"
+                            className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring disabled:opacity-50"
                         >
                             <option value="">Select a contact...</option>
                             {companyContacts.map((contact: any) => (
@@ -411,6 +429,7 @@ export default function EnhancedTicketModal({
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="Brief description of the issue"
+                            className="h-12 lg:h-10 text-base lg:text-sm"
                         />
                     </div>
 
@@ -421,12 +440,12 @@ export default function EnhancedTicketModal({
                             required
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                            className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             placeholder="Detailed description of the issue"
                         />
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                         {/* Category */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Category *</label>
@@ -434,7 +453,7 @@ export default function EnhancedTicketModal({
                                 required
                                 value={formData.category}
                                 onChange={(e) => handleCategoryChange(e.target.value)}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="telephony">Telephony</option>
                                 <option value="copiers">Copiers</option>
@@ -451,7 +470,7 @@ export default function EnhancedTicketModal({
                                 required
                                 value={formData.subcategory}
                                 onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="">Select subcategory...</option>
                                 {subcategories.map((sub: string) => (
@@ -463,7 +482,7 @@ export default function EnhancedTicketModal({
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-3">
+                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
                         {/* Priority */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Priority *</label>
@@ -471,7 +490,7 @@ export default function EnhancedTicketModal({
                                 required
                                 value={formData.priority}
                                 onChange={(e) => handlePriorityChange(e.target.value)}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
@@ -487,7 +506,7 @@ export default function EnhancedTicketModal({
                                 required
                                 value={formData.slaHours}
                                 onChange={(e) => setFormData({ ...formData, slaHours: e.target.value })}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="2">2 Hours</option>
                                 <option value="4">4 Hours</option>
@@ -506,7 +525,7 @@ export default function EnhancedTicketModal({
                                 required
                                 value={formData.assigneeId}
                                 onChange={(e) => handleAssigneeChange(e.target.value)}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 {technicians.map((tech) => (
                                     <option key={tech.id} value={tech.id}>
@@ -516,18 +535,7 @@ export default function EnhancedTicketModal({
                             </select>
                         </div>
                     </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Creating..." : "Create Ticket"}
-                        </Button>
-                    </div>
                 </form>
-            </div>
-        </div>
+            </MobileModal>
     );
 }

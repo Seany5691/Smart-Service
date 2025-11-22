@@ -66,35 +66,201 @@
     @apply border-border;
   }
   
+  /* Support system font scaling by using relative units */
+  html {
+    /* Base font size - allows user to scale via browser/system settings */
+    font-size: 100%; /* 16px by default, but respects user preferences */
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Use rem units to respect user font size preferences */
+    font-size: 1rem; /* 16px by default, scales with user settings */
+    line-height: 1.5;
+    /* Prevent text from overflowing containers when scaled */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
+  /* Mobile-optimized typography with responsive scaling */
+  /* All sizes use rem units to respect user font size preferences */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
+    line-height: 1.2;
+    /* Prevent text overflow when scaled */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   
   h1 {
-    @apply text-4xl lg:text-5xl;
+    @apply text-3xl lg:text-5xl;
+    /* Mobile: 1.875rem (scales with user settings), Desktop: 3rem */
   }
   
   h2 {
-    @apply text-3xl lg:text-4xl;
+    @apply text-2xl lg:text-4xl;
+    /* Mobile: 1.5rem (scales with user settings), Desktop: 2.25rem */
   }
   
   h3 {
-    @apply text-2xl lg:text-3xl;
+    @apply text-xl lg:text-3xl;
+    /* Mobile: 1.25rem (scales with user settings), Desktop: 1.875rem */
   }
   
   h4 {
-    @apply text-xl lg:text-2xl;
+    @apply text-lg lg:text-2xl;
+    /* Mobile: 1.125rem (scales with user settings), Desktop: 1.5rem */
+  }
+  
+  h5 {
+    @apply text-base lg:text-xl;
+    /* Mobile: 1rem (scales with user settings), Desktop: 1.25rem */
+  }
+  
+  h6 {
+    @apply text-base lg:text-lg;
+    /* Mobile: 1rem (scales with user settings), Desktop: 1.125rem */
+  }
+  
+  /* Ensure paragraphs and body text maintain readability */
+  p {
+    line-height: 1.6;
+    /* Prevent text overflow when scaled */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Mobile-optimized text sizes for common elements */
+  small {
+    @apply text-sm;
+    /* 0.875rem - scales with user settings */
+  }
+  
+  /* Ensure adequate spacing between interactive elements on mobile */
+  button, a, input, select, textarea {
+    /* Minimum 8px spacing handled by component-level utilities */
+    /* Use relative units for padding to scale with font size */
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Mobile-optimized text sizes using rem for font scaling support */
+  .text-mobile-base {
+    font-size: 1rem; /* 16px by default, scales with user settings */
+  }
+  
+  .text-mobile-sm {
+    font-size: 0.875rem; /* 14px by default, scales with user settings */
+  }
+  
+  .text-mobile-lg {
+    font-size: 1.125rem; /* 18px by default, scales with user settings */
+  }
+  
+  /* Font scaling utilities */
+  .font-scale-safe {
+    /* Ensures text doesn't break layout when scaled */
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  .container-scale-safe {
+    /* Ensures containers adapt to scaled text */
+    min-height: fit-content;
+    overflow: visible;
+  }
+  
+  /* Flexible spacing that scales with font size */
+  .space-scale {
+    gap: 0.5em; /* Scales with font size */
+  }
+  
+  .p-scale {
+    padding: 1em; /* Scales with font size */
+  }
+  
+  .m-scale {
+    margin: 1em; /* Scales with font size */
+  }
+  
+  /* Mobile-optimized spacing utilities */
+  .space-mobile {
+    @apply space-y-3 lg:space-y-4;
+  }
+  
+  .gap-mobile {
+    @apply gap-3 lg:gap-4;
+  }
+  
+  .p-mobile {
+    @apply p-4 lg:p-6;
+  }
+  
+  .px-mobile {
+    @apply px-4 lg:px-6;
+  }
+  
+  .py-mobile {
+    @apply py-3 lg:py-4;
+  }
+  
+  /* Safe area padding for notched devices */
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .pl-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .pr-safe {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  .p-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  /* Minimum touch target spacing */
+  .touch-spacing {
+    margin: 0.5rem; /* 8px minimum spacing between touch targets */
+  }
+  
+  /* Touch feedback utilities for mobile interactions */
+  .touch-feedback {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+  
+  .touch-feedback-subtle {
+    @apply active:scale-[0.98] transition-transform duration-100;
+  }
+  
+  .touch-feedback-bg {
+    @apply active:bg-accent/50 transition-colors duration-100;
+  }
+  
+  .touch-feedback-opacity {
+    @apply active:opacity-70 transition-opacity duration-100;
+  }
+  
+  /* Combined touch feedback for buttons and interactive elements */
+  .touch-interactive {
+    @apply active:scale-95 active:bg-accent/50 transition-all duration-100;
   }
   
   .glass {
@@ -179,6 +345,110 @@
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/30;
   }
+  
+  /* Horizontal scroll with fade indicators */
+  .scroll-fade-x {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .scroll-fade-x::before,
+  .scroll-fade-x::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2rem;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .scroll-fade-x::before {
+    left: 0;
+    background: linear-gradient(to right, hsl(var(--background)), transparent);
+  }
+  
+  .scroll-fade-x::after {
+    right: 0;
+    background: linear-gradient(to left, hsl(var(--background)), transparent);
+  }
+  
+  /* Vertical scroll with fade indicators */
+  .scroll-fade-y {
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .scroll-fade-y::before,
+  .scroll-fade-y::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2rem;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .scroll-fade-y::before {
+    top: 0;
+    background: linear-gradient(to bottom, hsl(var(--background)), transparent);
+  }
+  
+  .scroll-fade-y::after {
+    bottom: 0;
+    background: linear-gradient(to top, hsl(var(--background)), transparent);
+  }
+  
+  /* Smooth scroll snap for horizontal scrolling */
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .scroll-snap-x > * {
+    scroll-snap-align: start;
+  }
+  
+  /* Smooth scroll performance optimization */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* GPU-accelerated scrolling */
+  .scroll-gpu {
+    transform: translateZ(0);
+    will-change: scroll-position;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Orientation-specific utilities */
+  .portrait-only {
+    display: block;
+  }
+  
+  .landscape-only {
+    display: none;
+  }
+  
+  @media (orientation: landscape) {
+    .portrait-only {
+      display: none;
+    }
+    
+    .landscape-only {
+      display: block;
+    }
+  }
+  
+  /* Smooth orientation transition */
+  .orientation-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 /* Custom animations */
@@ -246,4 +516,131 @@
 /* Focus styles */
 .focus-ring {
   @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+}
+
+/* Enhanced focus indicators for keyboard navigation */
+.focus-visible-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+/* High contrast focus indicator for better visibility */
+.focus-visible-strong {
+  @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+/* Focus indicator that works well on dark backgrounds */
+.focus-visible-light {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900;
+}
+
+/* Skip focus for mouse users, show for keyboard users */
+*:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Ensure all interactive elements are keyboard accessible */
+a, button, input, select, textarea, [role="button"], [role="link"], [tabindex]:not([tabindex="-1"]) {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 767px) {
+  /* Ensure text doesn't extend beyond viewport */
+  body {
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Optimize tap highlight color for mobile */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Smooth scrolling on mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Enable momentum scrolling for all scrollable elements on iOS */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize scroll performance with GPU acceleration */
+  .scroll-container {
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
+}
+
+/* Support for large font sizes (200% scaling) */
+@media (min-width: 1px) {
+  /* Ensure layouts adapt to larger text */
+  .grid {
+    /* Allow grid items to wrap when text is large */
+    grid-auto-flow: dense;
+  }
+  
+  /* Ensure flex containers don't break with large text */
+  .flex {
+    flex-wrap: wrap;
+  }
+  
+  /* Ensure buttons remain usable with large text */
+  button, .btn {
+    min-height: 2.75em; /* Scales with font size */
+    padding: 0.5em 1em;
+  }
+  
+  /* Ensure inputs remain usable with large text */
+  input, select, textarea {
+    min-height: 3em; /* Scales with font size */
+    padding: 0.5em 0.75em;
+  }
+  
+  /* Prevent horizontal overflow with large text */
+  * {
+    max-width: 100%;
+  }
+  
+  /* Allow containers to grow with content */
+  .container, .card, .modal {
+    min-height: fit-content;
+    height: auto;
+  }
+}
+
+/* Specific adjustments for very large text (150%+) */
+@media (min-resolution: 1.5dppx) and (max-width: 767px) {
+  /* Increase spacing for better readability */
+  body {
+    line-height: 1.6;
+  }
+  
+  /* Ensure touch targets remain adequate */
+  button, a, input, select {
+    min-height: 3em;
+    min-width: 3em;
+  }
 }

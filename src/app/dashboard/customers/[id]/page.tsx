@@ -220,34 +220,37 @@ export default function CustomerDetailPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 p-8 text-white shadow-2xl">
+        <div className="space-y-4 lg:space-y-6">
+            {/* Header with Gradient - Mobile Optimized */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
                 <div className="relative">
+                    {/* Back Button - Prominent on Mobile */}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => router.push("/dashboard/customers")}
-                        className="mb-4 text-white hover:bg-white/20"
+                        className="mb-3 lg:mb-4 text-white hover:bg-white/20 h-11 w-11 lg:h-10 lg:w-10"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg">
-                                <Building2 className="h-8 w-8 text-white" />
+                    {/* Stack on mobile, side-by-side on desktop */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="flex h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg flex-shrink-0">
+                                <Building2 className="h-6 w-6 lg:h-8 lg:w-8 text-white" />
                             </div>
-                            <div>
-                                <h1 className="text-4xl font-bold">{customer.companyName}</h1>
-                                <p className="text-emerald-100 mt-2">
+                            <div className="min-w-0 flex-1">
+                                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold truncate">{customer.companyName}</h1>
+                                <p className="text-emerald-100 mt-1 lg:mt-2 text-sm lg:text-base">
                                     {customer.regNumber || "No registration number"}
                                 </p>
                             </div>
                         </div>
+                        {/* Edit button - Full width on mobile */}
                         <Button 
                             variant="ghost" 
-                            className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                            className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 w-full lg:w-auto justify-center h-11 lg:h-10"
                             onClick={() => setShowEditModal(true)}
                         >
                             <Edit className="h-4 w-4" />
@@ -257,104 +260,108 @@ export default function CustomerDetailPage() {
                 </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid gap-6 md:grid-cols-5">
+            {/* Stats - Responsive Grid */}
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
-                        <div className="text-4xl font-bold">{contacts.length}</div>
+                    <CardContent className="relative p-4 lg:p-6">
+                        <div className="text-2xl lg:text-4xl font-bold">{contacts.length}</div>
                         <p className="text-xs text-muted-foreground mt-1">Contacts</p>
                     </CardContent>
                 </Card>
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
-                        <div className="text-4xl font-bold">{customer.sites || 0}</div>
+                    <CardContent className="relative p-4 lg:p-6">
+                        <div className="text-2xl lg:text-4xl font-bold">{customer.sites || 0}</div>
                         <p className="text-xs text-muted-foreground mt-1">Sites</p>
                     </CardContent>
                 </Card>
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
-                        <div className="text-4xl font-bold">{openTickets.length}</div>
+                    <CardContent className="relative p-4 lg:p-6">
+                        <div className="text-2xl lg:text-4xl font-bold">{openTickets.length}</div>
                         <p className="text-xs text-muted-foreground mt-1">Open Tickets</p>
                     </CardContent>
                 </Card>
                 <Card className="relative overflow-hidden border-0 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
-                        <div className="text-4xl font-bold">{tickets.length}</div>
+                    <CardContent className="relative p-4 lg:p-6">
+                        <div className="text-2xl lg:text-4xl font-bold">{tickets.length}</div>
                         <p className="text-xs text-muted-foreground mt-1">Total Tickets</p>
                     </CardContent>
                 </Card>
-                <Card className="relative overflow-hidden border-0 shadow-lg">
+                <Card className="relative overflow-hidden border-0 shadow-lg col-span-2 sm:col-span-1">
                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 opacity-5"></div>
-                    <CardContent className="relative p-6">
-                        <div className="text-4xl font-bold">{hardware.reduce((sum, h) => sum + h.quantity, 0)}</div>
+                    <CardContent className="relative p-4 lg:p-6">
+                        <div className="text-2xl lg:text-4xl font-bold">{hardware.reduce((sum, h) => sum + h.quantity, 0)}</div>
                         <p className="text-xs text-muted-foreground mt-1">Hardware Items</p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Tabs */}
-            <div className="border-b">
-                <div className="flex gap-4">
+            {/* Tabs - Mobile Optimized with Horizontal Scroll */}
+            <div className="border-b -mx-4 px-4 lg:mx-0 lg:px-0">
+                <div className="flex gap-2 lg:gap-4 overflow-x-auto scrollbar-hide pb-px">
                     <button
                         onClick={() => setActiveTab("details")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "details"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
-                        Company Details
+                        Details
                     </button>
                     <button
                         onClick={() => setActiveTab("contacts")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "contacts"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
-                        Contacts ({contacts.length})
+                        <span className="hidden sm:inline">Contacts</span>
+                        <span className="sm:hidden">Contacts</span>
+                        <span className="ml-1">({contacts.length})</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("tickets")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "tickets"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
-                        Service Requests ({tickets.length})
+                        <span className="hidden sm:inline">Service Requests</span>
+                        <span className="sm:hidden">Tickets</span>
+                        <span className="ml-1">({tickets.length})</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("hardware")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "hardware"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
                         Hardware ({hardware.reduce((sum, h) => sum + h.quantity, 0)})
                     </button>
                     <button
                         onClick={() => setActiveTab("tasks")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "tasks"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
                         Tasks ({tasks.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("documents")}
-                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[100px] h-11 flex items-center justify-center ${
                             activeTab === "documents"
                                 ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground active:text-foreground"
                         }`}
                     >
                         Documents
@@ -362,46 +369,60 @@ export default function CustomerDetailPage() {
                 </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-4 lg:gap-6 lg:grid-cols-3">
                 {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Company Details Tab */}
+                <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+                    {/* Company Details Tab - Mobile Optimized */}
                     {activeTab === "details" && (
                         <Card>
                         <CardHeader>
-                            <CardTitle>Company Details</CardTitle>
+                            <CardTitle className="text-lg lg:text-xl">Company Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Company Name</label>
-                                    <p className="mt-1">{customer.companyName}</p>
+                                    <p className="mt-1 text-base">{customer.companyName}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Registration Number</label>
-                                    <p className="mt-1">{customer.regNumber || "N/A"}</p>
+                                    <p className="mt-1 text-base">{customer.regNumber || "N/A"}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">VAT Number</label>
-                                    <p className="mt-1">{customer.vatNumber || "N/A"}</p>
+                                    <p className="mt-1 text-base">{customer.vatNumber || "N/A"}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Telephone</label>
-                                    <p className="mt-1">{customer.telephone}</p>
+                                    <a 
+                                        href={`tel:${customer.telephone}`}
+                                        className="mt-1 text-base text-primary hover:underline active:text-primary/80 block"
+                                    >
+                                        {customer.telephone}
+                                    </a>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Email</label>
-                                    <p className="mt-1">{customer.email || "N/A"}</p>
+                                    {customer.email ? (
+                                        <a 
+                                            href={`mailto:${customer.email}`}
+                                            className="mt-1 text-base text-primary hover:underline active:text-primary/80 block truncate"
+                                        >
+                                            {customer.email}
+                                        </a>
+                                    ) : (
+                                        <p className="mt-1 text-base">N/A</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">City</label>
-                                    <p className="mt-1">{customer.city || "N/A"}</p>
+                                    <p className="mt-1 text-base">{customer.city || "N/A"}</p>
                                 </div>
                             </div>
                             {customer.address && (
                                 <div>
                                     <label className="text-sm font-medium text-muted-foreground">Address</label>
-                                    <p className="mt-1">{customer.address}</p>
+                                    <p className="mt-1 text-base">{customer.address}</p>
                                 </div>
                             )}
                             {customer.pbxLink && (
@@ -411,7 +432,7 @@ export default function CustomerDetailPage() {
                                         href={customer.pbxLink} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="mt-2 flex items-center gap-2 text-primary hover:underline"
+                                        className="mt-2 flex items-center gap-2 text-primary hover:underline active:text-primary/80 h-11 lg:h-auto"
                                     >
                                         <Phone className="h-4 w-4" />
                                         Access PBX System
@@ -423,14 +444,19 @@ export default function CustomerDetailPage() {
 
                     )}
 
-                    {/* Contacts Tab */}
+                    {/* Contacts Tab - Mobile Optimized */}
                     {activeTab === "contacts" && (
                         <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Contacts ({contacts.length})</CardTitle>
-                            <Button size="sm" onClick={() => setShowContactModal(true)}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                            <CardTitle className="text-lg lg:text-xl">Contacts ({contacts.length})</CardTitle>
+                            <Button 
+                                size="sm" 
+                                onClick={() => setShowContactModal(true)}
+                                className="h-11 lg:h-9"
+                            >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add Contact
+                                <span className="hidden sm:inline">Add Contact</span>
+                                <span className="sm:hidden">Add</span>
                             </Button>
                         </CardHeader>
                         <CardContent>
@@ -438,7 +464,10 @@ export default function CustomerDetailPage() {
                                 <div className="text-center py-8">
                                     <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                                     <p className="text-muted-foreground mb-4">No contacts added yet</p>
-                                    <Button onClick={() => setShowContactModal(true)}>
+                                    <Button 
+                                        onClick={() => setShowContactModal(true)}
+                                        className="h-11 lg:h-10"
+                                    >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Add First Contact
                                     </Button>
@@ -448,31 +477,39 @@ export default function CustomerDetailPage() {
                                     {contacts.map((contact: any, index: number) => (
                                         <div 
                                             key={index} 
-                                            className="flex items-center gap-3 p-3 border rounded-lg bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                                            className="flex items-start gap-3 p-4 border rounded-lg bg-card hover:bg-accent/50 active:bg-accent transition-colors cursor-pointer"
                                             onClick={() => router.push(`/dashboard/customers/${customerId}/contacts/${contact.id}`)}
                                         >
-                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                            <div className="h-10 w-10 lg:h-10 lg:w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
                                                 <User className="h-5 w-5" />
                                             </div>
-                                            <div className="flex-1">
-                                                <p className="font-medium">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-base">
                                                     {contact.firstName} {contact.lastName}
                                                 </p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {contact.role || "No role specified"}
                                                 </p>
-                                                <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
                                                     {contact.email && (
-                                                        <span className="flex items-center gap-1">
-                                                            <Mail className="h-3 w-3" />
-                                                            {contact.email}
-                                                        </span>
+                                                        <a 
+                                                            href={`mailto:${contact.email}`}
+                                                            className="flex items-center gap-1.5 text-sm text-primary hover:underline active:text-primary/80"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <Mail className="h-4 w-4 flex-shrink-0" />
+                                                            <span className="truncate">{contact.email}</span>
+                                                        </a>
                                                     )}
                                                     {contact.cellNumber && (
-                                                        <span className="flex items-center gap-1">
-                                                            <Phone className="h-3 w-3" />
-                                                            {contact.cellNumber}
-                                                        </span>
+                                                        <a 
+                                                            href={`tel:${contact.cellNumber}`}
+                                                            className="flex items-center gap-1.5 text-sm text-primary hover:underline active:text-primary/80"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <Phone className="h-4 w-4 flex-shrink-0" />
+                                                            <span>{contact.cellNumber}</span>
+                                                        </a>
                                                     )}
                                                 </div>
                                             </div>
@@ -485,14 +522,19 @@ export default function CustomerDetailPage() {
 
                     )}
 
-                    {/* Hardware Tab */}
+                    {/* Hardware Tab - Mobile Optimized */}
                     {activeTab === "hardware" && (
                         <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Hardware ({hardware.reduce((sum, h) => sum + h.quantity, 0)})</CardTitle>
-                            <Button size="sm" onClick={() => setShowHardwareModal(true)}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                            <CardTitle className="text-lg lg:text-xl">Hardware ({hardware.reduce((sum, h) => sum + h.quantity, 0)})</CardTitle>
+                            <Button 
+                                size="sm" 
+                                onClick={() => setShowHardwareModal(true)}
+                                className="h-11 lg:h-9"
+                            >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add Hardware
+                                <span className="hidden sm:inline">Add Hardware</span>
+                                <span className="sm:hidden">Add</span>
                             </Button>
                         </CardHeader>
                         <CardContent>
@@ -500,7 +542,10 @@ export default function CustomerDetailPage() {
                                 <div className="text-center py-8">
                                     <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                                     <p className="text-muted-foreground mb-4">No hardware added yet</p>
-                                    <Button onClick={() => setShowHardwareModal(true)}>
+                                    <Button 
+                                        onClick={() => setShowHardwareModal(true)}
+                                        className="h-11 lg:h-10"
+                                    >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Add First Hardware
                                     </Button>
@@ -508,32 +553,31 @@ export default function CustomerDetailPage() {
                             ) : (
                                 <div className="space-y-3">
                                     {hardware.map((item: any) => (
-                                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg bg-card">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                    <Package className="h-5 w-5 text-primary" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-medium">{item.hardwareLabel}</p>
-                                                    {item.nickname && (
-                                                        <p className="text-xs text-muted-foreground italic">"{item.nickname}"</p>
+                                        <div key={item.id} className="flex items-start gap-3 p-4 border rounded-lg bg-card">
+                                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                                <Package className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-base">{item.hardwareLabel}</p>
+                                                {item.nickname && (
+                                                    <p className="text-sm text-muted-foreground italic">"{item.nickname}"</p>
+                                                )}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1 text-sm text-muted-foreground mt-2">
+                                                    {item.serialNumber && (
+                                                        <span className="truncate">SN: {item.serialNumber}</span>
                                                     )}
-                                                    <div className="grid grid-cols-2 gap-x-3 text-xs text-muted-foreground mt-1">
-                                                        {item.serialNumber && (
-                                                            <span>SN: {item.serialNumber}</span>
-                                                        )}
-                                                        {item.macAddress && (
-                                                            <span>MAC: {item.macAddress}</span>
-                                                        )}
-                                                        {item.ipAddress && (
-                                                            <span>IP: {item.ipAddress}</span>
-                                                        )}
-                                                    </div>
+                                                    {item.macAddress && (
+                                                        <span className="truncate">MAC: {item.macAddress}</span>
+                                                    )}
+                                                    {item.ipAddress && (
+                                                        <span className="truncate">IP: {item.ipAddress}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon"
+                                                className="h-11 w-11 lg:h-9 lg:w-9 flex-shrink-0"
                                                 onClick={() => {
                                                     setHardwareToDelete(item.id);
                                                     setShowDeleteConfirm(true);
@@ -550,44 +594,67 @@ export default function CustomerDetailPage() {
 
                     )}
 
-                    {/* Service Requests Tab */}
+                    {/* Service Requests Tab - Mobile Optimized */}
                     {activeTab === "tickets" && (
                         <Card>
-                        <CardHeader>
-                            <CardTitle>Service Requests ({tickets.length})</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                            <CardTitle className="text-lg lg:text-xl">Service Requests ({tickets.length})</CardTitle>
+                            <Button 
+                                size="sm" 
+                                onClick={() => setShowTicketModal(true)}
+                                className="h-11 lg:h-9"
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                <span className="hidden sm:inline">New Ticket</span>
+                                <span className="sm:hidden">New</span>
+                            </Button>
                         </CardHeader>
                         <CardContent>
                             {tickets.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    No service requests yet
+                                <div className="text-center py-8">
+                                    <Ticket className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                                    <p className="text-muted-foreground mb-4">No service requests yet</p>
+                                    <Button 
+                                        onClick={() => setShowTicketModal(true)}
+                                        className="h-11 lg:h-10"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Create First Ticket
+                                    </Button>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
                                     {tickets.slice(0, 10).map((ticket) => (
                                         <Link key={ticket.id} href={`/dashboard/tickets/${ticket.id}`}>
-                                            <div className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-accent/50 transition-colors cursor-pointer">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="text-sm font-mono font-medium">
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border rounded-lg bg-card hover:bg-accent/50 active:bg-accent transition-colors cursor-pointer">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                        <span className="text-sm font-mono font-medium text-primary">
                                                             {ticket.ticketId}
                                                         </span>
                                                         <Badge variant={priorityColors[ticket.priority as keyof typeof priorityColors] as any}>
                                                             {ticket.priority}
                                                         </Badge>
                                                     </div>
-                                                    <p className="text-sm font-medium">{ticket.title}</p>
-                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                    <p className="text-base font-medium mb-1 line-clamp-2">{ticket.title}</p>
+                                                    <p className="text-sm text-muted-foreground">
                                                         {formatTimestamp(ticket.createdAt)}
                                                     </p>
                                                 </div>
-                                                <Badge variant={statusColors[ticket.status as keyof typeof statusColors] as any}>
+                                                <Badge 
+                                                    variant={statusColors[ticket.status as keyof typeof statusColors] as any}
+                                                    className="self-start sm:self-center"
+                                                >
                                                     {ticket.status}
                                                 </Badge>
                                             </div>
                                         </Link>
                                     ))}
                                     {tickets.length > 10 && (
-                                        <Button variant="outline" className="w-full">
+                                        <Button 
+                                            variant="outline" 
+                                            className="w-full h-11 lg:h-10"
+                                        >
                                             View All {tickets.length} Tickets
                                         </Button>
                                     )}
@@ -597,22 +664,30 @@ export default function CustomerDetailPage() {
                     </Card>
                     )}
 
-                    {/* Tasks Tab */}
+                    {/* Tasks Tab - Mobile Optimized */}
                     {activeTab === "tasks" && (
                         <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Tasks ({tasks.length})</CardTitle>
-                            <Button size="sm" onClick={() => setShowAddTaskModal(true)}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                            <CardTitle className="text-lg lg:text-xl">Tasks ({tasks.length})</CardTitle>
+                            <Button 
+                                size="sm" 
+                                onClick={() => setShowAddTaskModal(true)}
+                                className="h-11 lg:h-9"
+                            >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add Task
+                                <span className="hidden sm:inline">Add Task</span>
+                                <span className="sm:hidden">Add</span>
                             </Button>
                         </CardHeader>
                         <CardContent>
                             {tasks.length === 0 ? (
                                 <div className="text-center py-8">
-                                    <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                                    <CheckSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                                     <p className="text-muted-foreground mb-4">No tasks for this customer yet</p>
-                                    <Button onClick={() => setShowAddTaskModal(true)}>
+                                    <Button 
+                                        onClick={() => setShowAddTaskModal(true)}
+                                        className="h-11 lg:h-10"
+                                    >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Add First Task
                                     </Button>
@@ -639,26 +714,42 @@ export default function CustomerDetailPage() {
                 </div>
 
                 {/* Sidebar - Always Visible */}
-                <div className="space-y-6">
+                <div className="space-y-4 lg:space-y-6">
                     {/* Quick Actions */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Quick Actions</CardTitle>
+                            <CardTitle className="text-lg lg:text-xl">Quick Actions</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowTicketModal(true)}>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start gap-2 h-11 lg:h-10" 
+                                onClick={() => setShowTicketModal(true)}
+                            >
                                 <Ticket className="h-4 w-4" />
                                 Create Ticket
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowAddTaskModal(true)}>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start gap-2 h-11 lg:h-10" 
+                                onClick={() => setShowAddTaskModal(true)}
+                            >
                                 <CheckSquare className="h-4 w-4" />
                                 Add Task
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowContactModal(true)}>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start gap-2 h-11 lg:h-10" 
+                                onClick={() => setShowContactModal(true)}
+                            >
                                 <Plus className="h-4 w-4" />
                                 Add Contact
                             </Button>
-                            <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setShowEditModal(true)}>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start gap-2 h-11 lg:h-10" 
+                                onClick={() => setShowEditModal(true)}
+                            >
                                 <Edit className="h-4 w-4" />
                                 Edit Company
                             </Button>
@@ -668,19 +759,19 @@ export default function CustomerDetailPage() {
                     {/* Timeline */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Company Timeline</CardTitle>
+                            <CardTitle className="text-lg lg:text-xl">Company Timeline</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex gap-3">
                                     <div className="flex flex-col items-center">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
                                             <Clock className="h-4 w-4" />
                                         </div>
                                         <div className="w-px flex-1 bg-border mt-2" style={{ minHeight: '20px' }} />
                                     </div>
-                                    <div className="flex-1 pb-4">
-                                        <p className="font-medium">Company Created</p>
+                                    <div className="flex-1 pb-4 min-w-0">
+                                        <p className="font-medium text-sm lg:text-base">Company Created</p>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {formatTimestamp(customer.createdAt)}
                                         </p>
@@ -689,12 +780,12 @@ export default function CustomerDetailPage() {
                                 {tickets.length > 0 && (
                                     <div className="flex gap-3">
                                         <div className="flex flex-col items-center">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
                                                 <Ticket className="h-4 w-4" />
                                             </div>
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="font-medium">First Ticket Created</p>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-medium text-sm lg:text-base">First Ticket Created</p>
                                             <p className="text-xs text-muted-foreground mt-1">
                                                 {formatTimestamp(tickets[tickets.length - 1]?.createdAt)}
                                             </p>

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
 import { inventoryService } from "@/lib/firebase/services";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/utils/currency";
+import MobileModal from "@/components/MobileModal";
 
 interface AddInventoryModalProps {
     isOpen: boolean;
@@ -102,16 +102,34 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
-                <div className="flex items-center justify-between border-b p-6">
-                    <h2 className="text-2xl font-bold">Add Inventory Item</h2>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Add Inventory Item"
+            size="md"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="inventory-form"
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        {loading ? "Adding..." : "Add Item"}
                     </Button>
                 </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            }
+        >
+            <form id="inventory-form" onSubmit={handleSubmit} className="space-y-6">
                     {/* Item Name */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Item Name *</label>
@@ -120,11 +138,12 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder="e.g., Yealink T46S IP Phone"
+                            className="h-12 lg:h-10 text-base lg:text-sm"
                         />
                     </div>
 
                     {/* Category and Location */}
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Category *</label>
                             <Input
@@ -132,6 +151,7 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                 placeholder="e.g., Telephony, Networking"
+                                className="h-12 lg:h-10 text-base lg:text-sm"
                             />
                         </div>
 
@@ -142,12 +162,13 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                                 value={formData.location}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                 placeholder="e.g., Warehouse A, Storage Room"
+                                className="h-12 lg:h-10 text-base lg:text-sm"
                             />
                         </div>
                     </div>
 
                     {/* Quantity and Unit Price */}
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Quantity *</label>
                             <Input
@@ -158,6 +179,7 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                                 value={formData.quantity}
                                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                                 placeholder="0"
+                                className="h-12 lg:h-10 text-base lg:text-sm"
                             />
                             {formData.quantity && parseInt(formData.quantity) < 10 && parseInt(formData.quantity) > 0 && (
                                 <p className="text-xs text-amber-600">
@@ -176,6 +198,7 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                                 value={formData.unitPrice}
                                 onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
                                 placeholder="0.00"
+                                className="h-12 lg:h-10 text-base lg:text-sm"
                             />
                             {formData.unitPrice && formData.quantity && (
                                 <p className="text-xs text-muted-foreground">
@@ -191,22 +214,11 @@ export default function AddInventoryModal({ isOpen, onClose, onSuccess }: AddInv
                         <textarea
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                            className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             placeholder="Additional notes about this item..."
                         />
                     </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Adding..." : "Add Item"}
-                        </Button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </MobileModal>
     );
 }

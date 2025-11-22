@@ -98,36 +98,36 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-6">
             {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-8 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
                 <div className="relative">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                            <BarChart3 className="h-6 w-6" />
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
-                        <h1 className="text-4xl font-bold">Analytics</h1>
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Analytics</h1>
                     </div>
-                    <p className="text-purple-100 mt-2">
+                    <p className="text-purple-100 mt-2 text-sm sm:text-base">
                         Track performance metrics and insights
                     </p>
                 </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat) => (
                     <Card key={stat.name} className="relative overflow-hidden border-0 shadow-lg">
                         <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5`}></div>
-                        <CardContent className="relative p-6">
+                        <CardContent className="relative p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-muted-foreground">
+                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                                         {stat.name}
                                     </p>
-                                    <h3 className="mt-2 text-4xl font-bold">{stat.value}</h3>
+                                    <h3 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-bold">{stat.value}</h3>
                                 </div>
-                                <div className={`rounded-2xl p-4 ${stat.iconBg}`}>
-                                    <stat.icon className={`h-8 w-8 ${stat.iconColor}`} />
+                                <div className={`rounded-2xl p-3 sm:p-4 ${stat.iconBg}`}>
+                                    <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.iconColor}`} />
                                 </div>
                             </div>
                         </CardContent>
@@ -136,16 +136,16 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Charts */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
                 {/* Ticket Trends Chart */}
                 <Card className="shadow-lg border-0">
-                    <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5 text-blue-600" />
+                    <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                             Ticket Trends (Last 6 Months)
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         {trends.length > 0 ? (
                             <div className="space-y-4">
                                 {/* Chart */}
@@ -209,13 +209,13 @@ export default function AnalyticsPage() {
 
                 {/* Category Distribution Chart */}
                 <Card className="shadow-lg border-0">
-                    <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5 text-purple-600" />
+                    <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                             Category Distribution
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         {categories.length > 0 ? (
                             <div className="space-y-4">
                                 {categories.map((category, index) => {
@@ -261,14 +261,14 @@ export default function AnalyticsPage() {
             {/* Performance Metrics */}
             {metrics && (
                 <Card className="shadow-lg border-0">
-                    <CardHeader className="border-b bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                        <CardTitle className="flex items-center gap-2">
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    <CardHeader className="border-b bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4 sm:p-6">
+                        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                            <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
                             Performance Metrics
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="grid gap-4 md:grid-cols-3">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                             <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
                                 <p className="text-sm text-muted-foreground">First Response Time</p>
                                 <p className="text-2xl font-bold mt-2">

@@ -27,6 +27,7 @@ import TaskCard from "@/components/TaskCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import { LoadingState, SkeletonStats } from "@/components/LoadingState";
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -241,10 +242,28 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center">
-                <div className="text-center">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-                    <p className="mt-4 text-muted-foreground">Loading dashboard...</p>
+            <div className="space-y-6">
+                <Card className="shadow-lg border-0">
+                    <CardContent className="p-8">
+                        <div className="h-24 bg-accent rounded-xl animate-pulse" />
+                    </CardContent>
+                </Card>
+                <SkeletonStats />
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="shadow-lg border-0">
+                        <CardContent className="p-6 space-y-3">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="h-20 bg-accent rounded-lg animate-pulse" />
+                            ))}
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-lg border-0">
+                        <CardContent className="p-6 space-y-3">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="h-20 bg-accent rounded-lg animate-pulse" />
+                            ))}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         );

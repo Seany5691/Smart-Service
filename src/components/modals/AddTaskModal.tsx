@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
 import { taskService } from "@/lib/firebase/tasks";
 import { customerService, ticketService } from "@/lib/firebase/services";
 import { userService } from "@/lib/firebase/users";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import MobileModal from "@/components/MobileModal";
 
 interface AddTaskModalProps {
     isOpen: boolean;
@@ -186,16 +186,34 @@ export default function AddTaskModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-md m-4 max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between border-b p-6">
-                    <h2 className="text-xl font-bold">Add Task</h2>
-                    <Button variant="ghost" size="icon" onClick={handleClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={handleClose}
+            title="Add Task"
+            size="md"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <Button 
+                        type="button"
+                        variant="outline" 
+                        onClick={handleClose}
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="task-form"
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        {loading ? "Creating..." : "Create Task"}
                     </Button>
                 </div>
-                
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            }
+        >
+            <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
                     {/* Description */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">
@@ -205,7 +223,7 @@ export default function AddTaskModal({
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Enter task description..."
-                            className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                            className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             required
                         />
                     </div>
@@ -219,7 +237,7 @@ export default function AddTaskModal({
                             <select
                                 value={customerId}
                                 onChange={handleCustomerChange}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="">No customer</option>
                                 {customers.map((customer) => (
@@ -240,7 +258,7 @@ export default function AddTaskModal({
                             <select
                                 value={ticketId}
                                 onChange={handleTicketChange}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="">No ticket</option>
                                 {tickets.map((ticket) => (
@@ -261,6 +279,7 @@ export default function AddTaskModal({
                             type="date"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
+                            className="h-12 lg:h-10 text-base lg:text-sm"
                         />
                     </div>
 
@@ -273,6 +292,7 @@ export default function AddTaskModal({
                             type="time"
                             value={dueTime}
                             onChange={(e) => setDueTime(e.target.value)}
+                            className="h-12 lg:h-10 text-base lg:text-sm"
                         />
                     </div>
 
@@ -285,7 +305,7 @@ export default function AddTaskModal({
                             <select
                                 value={assignedUserId}
                                 onChange={(e) => setAssignedUserId(e.target.value)}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option key="only-me" value="">Only me</option>
                                 {users.map((u: any) => (
@@ -301,23 +321,7 @@ export default function AddTaskModal({
                             )}
                         </div>
                     )}
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <Button 
-                            type="button"
-                            variant="outline" 
-                            onClick={handleClose}
-                            disabled={loading}
-                        >
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Creating..." : "Create Task"}
-                        </Button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </MobileModal>
     );
 }

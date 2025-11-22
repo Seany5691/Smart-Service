@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { invoiceService, customerService } from "@/lib/firebase/services";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/utils/currency";
+import MobileModal from "@/components/MobileModal";
 
 interface AddInvoiceModalProps {
     isOpen: boolean;
@@ -176,25 +177,43 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-                <div className="flex items-center justify-between border-b p-6">
-                    <h2 className="text-2xl font-bold">Create New Invoice</h2>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Create New Invoice"
+            size="lg"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="invoice-form"
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        {loading ? "Creating..." : "Create Invoice"}
                     </Button>
                 </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            }
+        >
+            <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6">
                     {/* Customer Selection */}
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Customer *</label>
                             <select
                                 required
                                 value={formData.customerId}
                                 onChange={(e) => handleCustomerChange(e.target.value)}
-                                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                className="w-full rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             >
                                 <option value="">Select a customer...</option>
                                 {customers.map((customer) => (
@@ -212,6 +231,7 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                                 required
                                 value={formData.issueDate}
                                 onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
+                                className="h-12 lg:h-10 text-base lg:text-sm"
                             />
                         </div>
                     </div>
@@ -224,6 +244,7 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                             value={formData.dueDate}
                             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                             min={formData.issueDate}
+                            className="h-12 lg:h-10 text-base lg:text-sm"
                         />
                     </div>
 
@@ -257,10 +278,11 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                                                     value={item.description}
                                                     onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                                                     placeholder="Service or product description"
+                                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                                 />
                                             </div>
 
-                                            <div className="grid gap-3 md:grid-cols-3">
+                                            <div className="grid gap-3 grid-cols-1 lg:grid-cols-3">
                                                 <div className="space-y-2">
                                                     <label className="text-xs font-medium text-muted-foreground">
                                                         Quantity *
@@ -272,6 +294,7 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                                                         step="1"
                                                         value={item.quantity}
                                                         onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                                     />
                                                 </div>
 
@@ -286,6 +309,7 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                                                         step="0.01"
                                                         value={item.unitPrice}
                                                         onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
+                                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                                     />
                                                 </div>
 
@@ -293,7 +317,7 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                                                     <label className="text-xs font-medium text-muted-foreground">
                                                         Total
                                                     </label>
-                                                    <div className="flex items-center h-10 px-3 rounded-md border bg-muted/50 text-sm font-semibold">
+                                                    <div className="flex items-center h-12 lg:h-10 px-3 rounded-md border bg-muted/50 text-base lg:text-sm font-semibold">
                                                         {formatCurrency(item.total)}
                                                     </div>
                                                 </div>
@@ -339,22 +363,11 @@ export default function AddInvoiceModal({ isOpen, onClose, onSuccess }: AddInvoi
                         <textarea
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                            className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                             placeholder="Additional notes or payment terms..."
                         />
                     </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Creating..." : "Create Invoice"}
-                        </Button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </MobileModal>
     );
 }

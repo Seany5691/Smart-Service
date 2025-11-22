@@ -264,39 +264,39 @@ export default function SettingsPage() {
     return (
         <div className="space-y-6">
             {/* Header with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-8 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-grid-white/10"></div>
                 <div className="relative">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                            <SettingsIcon className="h-6 w-6" />
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <SettingsIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
-                        <h1 className="text-4xl font-bold">Settings</h1>
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Settings</h1>
                     </div>
-                    <p className="text-slate-300 mt-2">
+                    <p className="text-slate-300 mt-2 text-sm sm:text-base">
                         Manage your account and application preferences
                     </p>
                 </div>
             </div>
 
             {/* Settings Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {settingsSections.map((section) => (
                     <Card 
                         key={section.id} 
-                        className="group cursor-pointer hover:shadow-2xl transition-all border-0 shadow-lg overflow-hidden"
+                        className="group cursor-pointer hover:shadow-2xl active:bg-accent/50 transition-all border-0 shadow-lg overflow-hidden"
                     >
                         <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none`}></div>
-                        <CardContent className="relative p-6">
-                            <div className="flex items-start gap-4">
-                                <div className={`rounded-xl p-3 bg-gradient-to-br ${section.gradient} shadow-lg group-hover:scale-110 transition-transform`}>
-                                    <section.icon className="h-6 w-6 text-white" />
+                        <CardContent className="relative p-4 sm:p-6">
+                            <div className="flex items-start gap-3 sm:gap-4">
+                                <div className={`rounded-xl p-2.5 sm:p-3 bg-gradient-to-br ${section.gradient} shadow-lg group-hover:scale-110 transition-transform flex-shrink-0`}>
+                                    <section.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                 </div>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-base sm:text-lg mb-1 group-hover:text-blue-600 transition-colors">
                                         {section.name}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-xs sm:text-sm text-muted-foreground">
                                         {section.description}
                                     </p>
                                 </div>
@@ -308,26 +308,27 @@ export default function SettingsPage() {
 
             {/* Profile Settings */}
             <Card className="shadow-lg border-0">
-                <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                    <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5 text-blue-600" />
+                <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                         Profile Information
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-8">
                             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">First Name</label>
                                     <Input 
                                         placeholder="John" 
                                         value={profileData.firstName}
                                         onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                                        className="h-11 text-base"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -336,6 +337,7 @@ export default function SettingsPage() {
                                         placeholder="Doe" 
                                         value={profileData.lastName}
                                         onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                                        className="h-11 text-base"
                                     />
                                 </div>
                             </div>
@@ -345,7 +347,7 @@ export default function SettingsPage() {
                                     type="email" 
                                     value={profileData.email}
                                     disabled
-                                    className="bg-muted"
+                                    className="bg-muted h-11 text-base"
                                 />
                                 <p className="text-xs text-muted-foreground">Email address cannot be changed</p>
                             </div>
@@ -356,10 +358,11 @@ export default function SettingsPage() {
                                     placeholder="+27 82 123 4567" 
                                     value={profileData.phone}
                                     onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                                    className="h-11 text-base"
                                 />
                             </div>
                             <div className="flex justify-end pt-4">
-                                <Button className="gap-2" onClick={handleSaveProfile} disabled={saving}>
+                                <Button className="gap-2 w-full sm:w-auto min-h-[44px]" onClick={handleSaveProfile} disabled={saving}>
                                     <Save className="h-4 w-4" />
                                     {saving ? "Saving..." : "Save Changes"}
                                 </Button>
@@ -371,13 +374,13 @@ export default function SettingsPage() {
 
             {/* Security Settings */}
             <Card className="shadow-lg border-0">
-                <CardHeader className="border-b bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20">
-                    <CardTitle className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-red-600" />
+                <CardHeader className="border-b bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                         Security Settings
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Current Password</label>
@@ -386,6 +389,7 @@ export default function SettingsPage() {
                                 placeholder="••••••••" 
                                 value={passwordData.current}
                                 onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
+                                className="h-11 text-base"
                             />
                         </div>
                         <div className="space-y-2">
@@ -395,6 +399,7 @@ export default function SettingsPage() {
                                 placeholder="••••••••" 
                                 value={passwordData.new}
                                 onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
+                                className="h-11 text-base"
                             />
                         </div>
                         <div className="space-y-2">
@@ -404,6 +409,7 @@ export default function SettingsPage() {
                                 placeholder="••••••••" 
                                 value={passwordData.confirm}
                                 onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
+                                className="h-11 text-base"
                             />
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t">
@@ -414,7 +420,7 @@ export default function SettingsPage() {
                             <Badge variant="outline">Not Enabled</Badge>
                         </div>
                         <div className="flex justify-end pt-4">
-                            <Button className="gap-2" onClick={handleUpdatePassword} disabled={saving}>
+                            <Button className="gap-2 w-full sm:w-auto min-h-[44px]" onClick={handleUpdatePassword} disabled={saving}>
                                 <Key className="h-4 w-4" />
                                 {saving ? "Updating..." : "Update Password"}
                             </Button>
@@ -425,13 +431,13 @@ export default function SettingsPage() {
 
             {/* Notification Preferences */}
             <Card className="shadow-lg border-0">
-                <CardHeader className="border-b bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
-                    <CardTitle className="flex items-center gap-2">
-                        <Bell className="h-5 w-5 text-amber-600" />
+                <CardHeader className="border-b bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
                         Notification Preferences
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     <div className="space-y-4">
                         {[
                             { key: 'email' as const, label: "Email Notifications", description: "Receive email updates for new tickets" },
@@ -461,13 +467,13 @@ export default function SettingsPage() {
 
             {/* Default Assignees */}
             <Card className="shadow-lg border-0">
-                <CardHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-green-600" />
+                <CardHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                         Default Assignees
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">
                             Select which users can be assigned tickets. If no users are selected, all active users will be available for assignment.
@@ -500,7 +506,7 @@ export default function SettingsPage() {
                                 </p>
                             )}
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t">
                             <p className="text-sm text-muted-foreground">
                                 {defaultAssignees.length === 0 
                                     ? "All users can be assigned" 
@@ -510,7 +516,7 @@ export default function SettingsPage() {
                             <Button 
                                 onClick={handleSaveDefaultAssignees}
                                 disabled={savingAssignees}
-                                className="gap-2"
+                                className="gap-2 w-full sm:w-auto min-h-[44px]"
                             >
                                 <Save className="h-4 w-4" />
                                 {savingAssignees ? "Saving..." : "Save Changes"}

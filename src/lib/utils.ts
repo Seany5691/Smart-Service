@@ -80,3 +80,20 @@ export function debounce<T extends (...args: any[]) => any>(
         timeout = setTimeout(later, wait);
     };
 }
+
+// Re-export responsive utilities for convenience
+export {
+    useBreakpoint,
+    useIsMobile,
+    useIsTablet,
+    useIsDesktop,
+    useOrientation,
+    useIsPortrait,
+    useIsLandscape,
+    getCurrentBreakpoint,
+    isMobile,
+    isTablet,
+    isDesktop,
+    breakpoints,
+    type Breakpoint,
+} from "./responsive";

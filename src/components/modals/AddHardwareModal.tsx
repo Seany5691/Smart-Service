@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { hardwareService } from "@/lib/firebase/hardware";
 import { hardwareOptions } from "@/lib/firebase/settings";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import MobileModal from "@/components/MobileModal";
 
 interface AddHardwareModalProps {
     isOpen: boolean;
@@ -171,21 +172,45 @@ export default function AddHardwareModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-                <div className="flex items-center justify-between border-b p-6">
-                    <div>
-                        <h2 className="text-2xl font-bold">Add Hardware</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Adding hardware for {companyName}
-                        </p>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={`Add Hardware - ${companyName}`}
+            size="lg"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-between">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addHardwareItem}
+                        className="gap-2 h-12 lg:h-10"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Add Another Hardware
                     </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={loading}
+                            className="h-12 lg:h-10"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="hardware-form"
+                            disabled={loading}
+                            className="h-12 lg:h-10"
+                        >
+                            {loading ? "Saving..." : `Save ${hardwareItems.filter(i => i.hardwareType).length} Item(s)`}
+                        </Button>
+                    </div>
                 </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            }
+        >
+            <form id="hardware-form" onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-4">
                         {hardwareItems.map((item, index) => (
                             <div key={item.id} className="p-4 border rounded-lg bg-accent/20 space-y-4">
@@ -208,7 +233,7 @@ export default function AddHardwareModal({
                                     <select
                                         value={item.hardwareType}
                                         onChange={(e) => handleHardwareChange(item.id, e.target.value)}
-                                        className="w-full rounded-md border border-input bg-card px-3 py-2 text-sm focus-ring"
+                                        className="w-full rounded-md border border-input bg-card px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                                     >
                                         <option value="">Select hardware...</option>
                                         {hardwareOptions.map((hardware) => (
@@ -227,15 +252,17 @@ export default function AddHardwareModal({
                                                 value={item.nickname}
                                                 onChange={(e) => handleFieldChange(item.id, "nickname", e.target.value)}
                                                 placeholder="e.g., Reception Phone, Main Router, Extension 101"
+                                                className="h-12 lg:h-10 text-base lg:text-sm"
                                             />
                                         </div>
-                                        <div className="grid gap-4 md:grid-cols-3">
+                                        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium">Serial Number</label>
                                                 <Input
                                                     value={item.serialNumber}
                                                     onChange={(e) => handleFieldChange(item.id, "serialNumber", e.target.value)}
                                                     placeholder="SN123456789"
+                                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -244,6 +271,7 @@ export default function AddHardwareModal({
                                                     value={item.macAddress}
                                                     onChange={(e) => handleFieldChange(item.id, "macAddress", e.target.value)}
                                                     placeholder="00:1A:2B:3C:4D:5E"
+                                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -252,6 +280,7 @@ export default function AddHardwareModal({
                                                     value={item.ipAddress}
                                                     onChange={(e) => handleFieldChange(item.id, "ipAddress", e.target.value)}
                                                     placeholder="192.168.1.100"
+                                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                                 />
                                             </div>
                                         </div>
@@ -260,28 +289,7 @@ export default function AddHardwareModal({
                             </div>
                         ))}
                     </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={addHardwareItem}
-                            className="gap-2"
-                        >
-                            <Plus className="h-4 w-4" />
-                            Add Another Hardware
-                        </Button>
-                        <div className="flex gap-3">
-                            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={loading}>
-                                {loading ? "Saving..." : `Save ${hardwareItems.filter(i => i.hardwareType).length} Item(s)`}
-                            </Button>
-                        </div>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </MobileModal>
     );
 }

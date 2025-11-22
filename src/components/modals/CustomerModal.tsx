@@ -3,26 +3,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2, User } from "lucide-react";
 import { customerService } from "@/lib/firebase/services";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
-import CompanyTickets from "@/components/customers/CompanyTickets";
+import MobileModal from "@/components/MobileModal";
 
 interface CompanyModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (companyId?: string) => void;
     company?: any;
-}
-
-interface Contact {
-    id?: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    cellNumber: string;
-    role: string;
 }
 
 export default function CompanyModal({ isOpen, onClose, onSuccess, company }: CompanyModalProps) {
@@ -112,18 +101,33 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-card rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-                <div className="flex items-center justify-between border-b p-6">
-                    <h2 className="text-2xl font-bold">{company ? "Edit Company" : "New Company"}</h2>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
+        <MobileModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={company ? "Edit Company" : "New Company"}
+            size="lg"
+            footer={
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="h-12 lg:h-10"
+                    >
+                        {loading ? "Saving..." : company ? "Save Changes" : "Create Company"}
                     </Button>
                 </div>
-
-                <div className="p-6">(
-                        <form id="company-form" onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid gap-4 md:grid-cols-2">
+            }
+        >
+            <form id="company-form" onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Company Name *</label>
                                     <Input
@@ -131,26 +135,30 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                         value={formData.companyName}
                                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                                         placeholder="ABC Corporation"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Telephone *</label>
                                     <Input
                                         required
+                                        type="tel"
                                         value={formData.telephone}
                                         onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
                                         placeholder="+27 11 123 4567"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Company Reg Number</label>
                                     <Input
                                         value={formData.regNumber}
                                         onChange={(e) => setFormData({ ...formData, regNumber: e.target.value })}
                                         placeholder="2023/123456/07"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -159,6 +167,7 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                         value={formData.vatNumber}
                                         onChange={(e) => setFormData({ ...formData, vatNumber: e.target.value })}
                                         placeholder="4123456789"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                             </div>
@@ -170,6 +179,7 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     placeholder="info@company.com"
+                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                 />
                             </div>
 
@@ -180,6 +190,7 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                     value={formData.pbxLink}
                                     onChange={(e) => setFormData({ ...formData, pbxLink: e.target.value })}
                                     placeholder="https://pbx.example.com"
+                                    className="h-12 lg:h-10 text-base lg:text-sm"
                                 />
                                 <p className="text-xs text-muted-foreground">
                                     Link to cloud PBX system (for telephony customers)
@@ -191,18 +202,19 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                 <textarea
                                     value={formData.address}
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-ring"
+                                    className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-3 lg:py-2 text-base lg:text-sm focus-ring"
                                     placeholder="123 Business Street, Office Park..."
                                 />
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">City</label>
                                     <Input
                                         value={formData.city}
                                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                                         placeholder="Johannesburg"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -211,21 +223,11 @@ export default function CompanyModal({ isOpen, onClose, onSuccess, company }: Co
                                         value={formData.postalCode}
                                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                                         placeholder="2000"
+                                        className="h-12 lg:h-10 text-base lg:text-sm"
                                     />
                                 </div>
                             </div>
                         </form>
-                </div>
-
-                <div className="flex justify-end gap-3 p-6 border-t bg-muted/20">
-                    <Button variant="outline" onClick={onClose} disabled={loading}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleSubmit} disabled={loading}>
-                        {loading ? "Saving..." : company ? "Save Changes" : "Create Company"}
-                    </Button>
-                </div>
-            </div>
-        </div>
+        </MobileModal>
     );
 }

@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import CustomerModal from "@/components/modals/CustomerModal";
 import AddContactModal from "@/components/modals/AddContactModal";
 import { useRouter } from "next/navigation";
+import { SkeletonStats, SkeletonCard } from "@/components/LoadingState";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function CustomersPage() {
     const router = useRouter();
@@ -122,11 +124,14 @@ export default function CustomersPage() {
             </Card>
 
             {loading ? (
-                <Card>
-                    <CardContent className="p-12 text-center">
-                        <p className="text-muted-foreground">Loading customers...</p>
-                    </CardContent>
-                </Card>
+                <>
+                    <SkeletonStats />
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {[...Array(6)].map((_, i) => (
+                            <SkeletonCard key={i} />
+                        ))}
+                    </div>
+                </>
             ) : (
                 <>
                     {/* Stats Grid with Gradients */}
@@ -257,21 +262,13 @@ export default function CustomersPage() {
                     </div>
 
                     {filteredCustomers.length === 0 && (
-                        <Card className="shadow-lg border-0">
-                            <CardContent className="p-16 text-center">
-                                <Building2 className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">No customers found</h3>
-                                <p className="text-sm text-muted-foreground mb-6">
-                                    {searchQuery ? "Try adjusting your search" : "Create your first customer to get started"}
-                                </p>
-                                {!searchQuery && (
-                                    <Button onClick={handleNew} className="gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        New Customer
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
+                        <EmptyState
+                            icon={Building2}
+                            title="No customers found"
+                            description={searchQuery ? "Try adjusting your search filters" : "Create your first customer to get started"}
+                            actionLabel={!searchQuery ? "New Customer" : undefined}
+                            onAction={!searchQuery ? handleNew : undefined}
+                        />
                     )}
                 </>
             )}
